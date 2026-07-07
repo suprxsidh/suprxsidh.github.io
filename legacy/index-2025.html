@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suprasidh Das | AI & Chemical Engineering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d1117; /* Darker, near-black BG */
+            color: #e5e7eb;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Background Canvases */
+        #interactive-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.4;
+        }
+        
+        #header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: opacity 0.3s ease-out;
+        }
+        
+        /* Floating Nav Bar */
+        #navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(13, 17, 23, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        #navbar.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        #navbar a {
+            color: #e5e7eb;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        
+        #navbar a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #00f5ff, #ff2d88);
+            transition: width 0.3s ease;
+        }
+        
+        #navbar a:hover::after, #navbar a.active::after {
+            width: 100%;
+        }
+
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 8rem 0 6rem;
+            position: relative;
+            overflow: hidden; /* Contain the header canvas */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #00f5ff, #ff2d88); /* White to Cyan to Pink */
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 6s ease-in-out infinite;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #00f5ff; /* Cyan */
+            font-family: 'Fira Code', monospace;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            min-height: 2.25rem; /* Prevents layout shift */
+        }
+        
+        .subtitle .cursor {
+            display: inline-block;
+            background-color: #00f5ff;
+            width: 10px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+
+        .description {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+            color: #9ca3af;
+            line-height: 1.7;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00f5ff, #ff2d88); /* Cyan to Pink */
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 245, 255, 0.2), 0 4px 15px rgba(255, 45, 136, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 245, 255, 0.3), 0 8px 25px rgba(255, 45, 136, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 6rem;
+            padding-top: 4rem; /* For nav anchor scrolling */
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(135deg, #00f5ff, #ff2d88); /* Cyan to Pink */
+            border-radius: 2px;
+        }
+        
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        /* Cards */
+        .card, .project-card {
+            background: rgba(31, 41, 55, 0.5); /* Darker Blue-Gray */
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d; /* For 3D tilt */
+        }
+
+        .card::before, .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.08), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .card:hover::before, .project-card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover, .project-card:hover {
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 245, 255, 0.1);
+        }
+
+        .experience-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #7dd3fc; /* Lighter Cyan/Blue */
+            margin-bottom: 0.25rem;
+        }
+
+        .card-company {
+            font-family: 'Fira Code', monospace;
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+        .card-date {
+            font-family: 'Fira Code', monospace;
+            color: #6b7280;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .card-achievements {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-achievements li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #d1d5db;
+        }
+
+        .card-achievements li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00f5ff;
+            font-size: 0.8rem;
+        }
+
+        .highlight {
+            color: #7dd3fc;
+            font-weight: 600;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #7dd3fc;
+            margin-bottom: 1rem;
+        }
+
+        .project-description {
+            color: #9ca3af;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            background: rgba(0, 245, 255, 0.1);
+            color: #7dd3fc;
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+             box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+             transform: scale(1.05);
+        }
+
+        .project-link {
+            color: #00f5ff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            align-self: flex-start;
+        }
+
+        .project-link:hover {
+            color: #7dd3fc;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #1f2937; /* Even Darker Blue-Gray */
+            backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            animation: modalSlide 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            color: #9ca3af;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #00f5ff;
+        }
+
+        .modal h2 {
+            color: #00f5ff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .modal ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal li {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #d1d5db;
+        }
+
+        .modal li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00f5ff;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .header { padding: 6rem 0 4rem; }
+            .section-title { font-size: 2rem; }
+            .card-header { flex-direction: column; align-items: flex-start; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .modal-content { margin: 10% auto; width: 95%; padding: 1.5rem; }
+            #navbar { padding: 1rem; gap: 1rem; justify-content: space-around; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="interactive-bg"></canvas>
+    
+    <nav id="navbar">
+        <a href="#experience">Experience</a>
+        <a href="#research">Research</a>
+        <a href="#projects">Projects</a>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <canvas id="header-bg"></canvas>
+            <h1>Suprasidh Das</h1>
+            <p class="subtitle" id="subtitle-text"></p>
+            <p class="description">
+                Synthesizing intelligent solutions by reacting cutting-edge AI with core engineering principles. 
+                Currently focused on LLMOps and agentic AI to catalyze industrial innovation.
+            </p>
+            <div class="header-buttons">
+                <a href="mailto:suprasidh@smail.iitm.ac.in" class="btn btn-primary">Contact Me</a>
+                <a href="Suprasidh Resume v3.pdf" target="_blank" class="btn btn-secondary">Resume</a>
+            </div>
+        </header>
+
+        <!-- About Section -->
+        <section id="about" class="section reveal">
+            <h2 class="section-title reveal">About Me</h2>
+            <p class="description" style="max-width: 800px; margin: 0 auto; text-align: center;">
+                I am a final-year Chemical Engineering student at IIT Madras with a deep-seated passion for artificial intelligence. My work lives at the intersection of core engineering challenges and scalable AI solutions. From optimizing industrial processes with predictive models to developing agentic AI systems that solve complex scientific problems, I am driven by the pursuit of building intelligent systems that have a tangible, real-world impact.
+            </p>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="section reveal">
+            <h2 class="section-title reveal">Experience</h2>
+            <div class="experience-grid">
+                <!-- Danone, Ravvio, EXL cards -->
+                <div class="card reveal">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Operations Intern (Extended Offer & PPI)</div>
+                            <div class="card-company">Danone</div>
+                        </div>
+                        <div class="card-date">May '25 - Present</div>
+                    </div>
+                    <ul class="card-achievements">
+                        <li>Developed an offline LLM chatbot (LoRA) on SOPs, slashing shopfloor query resolution time by <span class="highlight">60%</span></li>
+                        <li>Prototyped a scalable RAG framework, integrating vector databases into Danone's knowledge systems</li>
+                        <li>Cut false rejection rates by <span class="highlight">80%</span> on 3 packaging lines via vision system improvements</li>
+                        <li>Automated QC report generation, boosting analysis speed by <span class="highlight">40%</span> and eliminating manual errors</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">AI/ML Intern</div>
+                            <div class="card-company">Ravvio</div>
+                        </div>
+                        <div class="card-date">Jan '25 - May '25</div>
+                    </div>
+                    <ul class="card-achievements">
+                        <li>Engineered AI chatbot workflows in Python & Dialogflow, lifting lead qualification accuracy by <span class="highlight">18%</span></li>
+                        <li>Deployed and managed chatbot services on AWS, handling <span class="highlight">25k+</span> monthly interactions with 99.9% uptime</li>
+                        <li>Improved STT accuracy for 5+ regional Indian languages by <span class="highlight">15%</span> using IndicWhisper</li>
+                        <li>QA-tested 500+ AI post-call summaries, fixing 15+ bugs and improving accuracy by <span class="highlight">20%</span></li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">AI Intern</div>
+                            <div class="card-company">EXL</div>
+                        </div>
+                        <div class="card-date">Jun '24 - Oct '24</div>
+                    </div>
+                    <ul class="card-achievements">
+                        <li>Researched GenAI integration for plant maintenance, targeting a <span class="highlight">30%+</span> reduction in downtime</li>
+                        <li>Developed predictive maintenance models with projected accuracy of over <span class="highlight">90%</span> in equipment failure forecasting</li>
+                        <li>Created AI-driven protocols enhancing successful task completion rates by over <span class="highlight">25%</span></li>
+                        <li>Conducted 10+ simulations with 100+ hours of data analysis to validate solution effectiveness</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Section -->
+        <section id="research" class="section reveal">
+            <h2 class="section-title reveal">Research</h2>
+            <div class="projects-grid">
+                <!-- ChemGPT, Gen AI, CFD, Atomic Interactions cards -->
+                <div class="project-card reveal">
+                    <div class="project-title">ChemGPT: Agentic AI for Chemical Engineering</div>
+                    <div class="project-description">An automated AI system that solves graduate-level chemical engineering problems with transparent, step-by-step reasoning using GraphRAG and ontology extraction.</div>
+                    <div class="project-tags"><span class="tag">Agentic AI</span><span class="tag">GraphRAG</span><span class="tag">94% Accuracy</span></div>
+                    <a href="#" onclick="showModal('chemGPTModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Gen AI Content Validation Engine</div>
+                    <div class="project-description">Automated multi-agent pipeline to generate, test, and validate AI-created content, reducing production time by over 90% across multiple channels.</div>
+                    <div class="project-tags"><span class="tag">Multi-Agent Systems</span><span class="tag">LLMs</span><span class="tag">Automation</span></div>
+                    <a href="#" onclick="showModal('genAIModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">CFD & ML for Fixed Bed Reactors</div>
+                    <div class="project-description">Simulated 20+ reactor configurations using CFD and trained ML models to predict particle geometry from flow and heat transfer features with <10% deviation.</div>
+                    <div class="project-tags"><span class="tag">CFD Simulation</span><span class="tag">Machine Learning</span><span class="tag">Process Optimization</span></div>
+                    <a href="#" onclick="showModal('cfdModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Deep Learning for Atomic Interactions</div>
+                    <div class="project-description">Developed a deep neural network to predict atomic interaction energies with 85% accuracy from a database of 134,000+ molecular data points.</div>
+                    <div class="project-tags"><span class="tag">Deep Neural Networks</span><span class="tag">Molecular Modeling</span><span class="tag">85% Accuracy</span></div>
+                    <a href="#" onclick="showModal('atomicModal', event)" class="project-link">View Details →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section reveal">
+            <h2 class="section-title reveal">Projects</h2>
+            <div class="projects-grid">
+                <!-- Dream11, Hydrogen, and NEW project cards -->
+                 <div class="project-card reveal">
+                    <div class="project-title">Dream11 Predictive Analytics</div>
+                    <div class="project-description">Architected ML pipeline analyzing 15k+ cricket matches with 300+ engineered features, achieving MAE <10 through 500+ Optuna optimization trials.</div>
+                    <div class="project-tags"><span class="tag">Sports Analytics</span><span class="tag">Feature Engineering</span><span class="tag">Predictive Modeling</span></div>
+                    <a href="#" onclick="showModal('dream11Modal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Hydrogen Aircraft Storage Design</div>
+                    <div class="project-description">Designed CFRP-based cryogenic hydrogen storage tank with 83% gravimetric efficiency, capable of 10,000 km flights with <0.1% daily fuel loss.</div>
+                    <div class="project-tags"><span class="tag">Aerospace</span><span class="tag">Materials Science</span><span class="tag">Sustainable Aviation</span></div>
+                    <a href="#" onclick="showModal('hydrogenModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Sign Language Detection</div>
+                    <div class="project-description">Designed a sign language detection system achieving 90% accuracy across a 10,000 image dataset using a CNN, processing over 900 fps for real-time classification.</div>
+                    <div class="project-tags"><span class="tag">Computer Vision</span><span class="tag">CNN</span><span class="tag">Deep Learning</span><span class="tag">Real-Time</span></div>
+                    <a href="#" onclick="showModal('signLangModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Modelling a Non-Isothermal PFR</div>
+                    <div class="project-description">Modeled a PFR for CO₂ methanation and designed a neural network achieving an R² score of 85% for conversion prediction after advanced data preprocessing.</div>
+                    <div class="project-tags"><span class="tag">Machine Learning</span><span class="tag">Process Modeling</span><span class="tag">Neural Networks</span></div>
+                    <a href="#" onclick="showModal('pfrModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Augmented Reality Campus Guide</div>
+                    <div class="project-description">Developed an AR application in Unity as part of a 3-member team to guide users to live event locations across the IIT Madras campus.</div>
+                    <div class="project-tags"><span class="tag">Augmented Reality</span><span class="tag">Unity</span><span class="tag">C#</span><span class="tag">Mobile Dev</span></div>
+                    <a href="#" onclick="showModal('arModal', event)" class="project-link">View Details →</a>
+                </div>
+                <div class="project-card reveal">
+                    <div class="project-title">Smart Materials for Chip Cooling</div>
+                    <div class="project-description">Simulated a unique perspiration-based cooling system for high-performance chips, integrating dynamic material properties for finite element thermal analysis.</div>
+                    <div class="project-tags"><span class="tag">Thermal Analysis</span><span class="tag">Simulation</span><span class="tag">Smart Materials</span><span class="tag">FEA</span></div>
+                    <a href="#" onclick="showModal('smartMaterialsModal', event)" class="project-link">View Details →</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <!-- Existing Modals: chemGPTModal, genAIModal, cfdModal, atomicModal, dream11Modal, hydrogenModal -->
+    <div id="chemGPTModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('chemGPTModal')">&times;</span><h2>ChemGPT: Agentic AI for Chemical Engineering</h2><p>This project focuses on creating an autonomous AI system capable of solving complex, graduate-level chemical engineering problems. It leverages a novel approach combining ontology extraction and graph-based retrieval to ensure accurate and transparent reasoning.</p><ul><li>Built a scalable ontology extraction system that processes thermodynamics textbooks with <span class="highlight">88% precision</span> across 5 knowledge types</li><li>Engineered an agentic GraphRAG system achieving <span class="highlight">92% retrieval accuracy</span> using iterative hypergraph reasoning</li><li>Demonstrated <span class="highlight">94% real-world accuracy</span> across 30+ thermodynamics topics with transparent step-by-step reasoning</li></ul></div></div>
+    <div id="genAIModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('genAIModal')">&times;</span><h2>Gen AI Content Validation Engine</h2><p>This research project automates and optimizes AI content creation workflows, providing a framework to quantify the performance of AI-generated content using real-world metrics across multiple marketing channels.</p><ul><li>Authored research paper quantifying AI-generated content performance across <span class="highlight">3 marketing channels</span></li><li>Automated end-to-end pipeline producing <span class="highlight">15 videos daily</span> using LLMs, TTS, and dynamic video assembly</li><li>Engineered multi-agent system testing <span class="highlight">5+ content strategies</span>, reducing production time by <span class="highlight">90%+</span></li></ul></div></div>
+    <div id="cfdModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('cfdModal')">&times;</span><h2>CFD & ML for Fixed Bed Reactors</h2><p>This project combines Computational Fluid Dynamics (CFD) and Machine Learning to simulate and optimize fixed bed reactors, critical components in chemical manufacturing processes.</p><ul><li>Simulated <span class="highlight">20+ realistic reactor configurations</span> using PRCFD to analyze flow, heat, and reaction behavior</li><li>Benchmarked porous media model results against PRCFD, achieving <span class="highlight">&lt;10% deviation</span> in key outputs</li><li>Processed <span class="highlight">200+ simulation datasets</span> to train ML model predicting particle geometry from target features</li></ul></div></div>
+    <div id="atomicModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('atomicModal')">&times;</span><h2>Deep Learning for Atomic Interactions</h2><p>This research project involved building a deep learning model to accurately predict atomic interaction energies, fundamental for understanding material properties and chemical reactions.</p><ul><li>Developed Deep Neural Network with <span class="highlight">3+ layers</span> predicting atomic interaction energy with <span class="highlight">85% accuracy</span></li><li>Implemented preprocessing pipelines extracting features from <span class="highlight">134,000+ molecular data points</span></li><li>Utilized One Hot Encoding, Morgan Fingerprinting, and QRChem for comprehensive feature representation</li></ul></div></div>
+    <div id="dream11Modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('dream11Modal')">&times;</span><h2>Dream11 Predictive Analytics</h2><p>Comprehensive sports analytics pipeline for cricket match prediction, combining statistical modeling with advanced feature engineering for fantasy sports optimization.</p><ul><li>Architected predictive pipeline analyzing <span class="highlight">15k+ cricket matches</span> with comprehensive historical data</li><li>Engineered <span class="highlight">300+ features</span> with high target correlation (r>0.9) improving model accuracy by <span class="highlight">20%+</span></li><li>Achieved MAE <span class="highlight">&lt;10</span> through <span class="highlight">500+ Optuna optimization trials</span></li></ul></div></div>
+    <div id="hydrogenModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('hydrogenModal')">&times;</span><h2>Hydrogen Aircraft Storage Design</h2><p>Advanced materials engineering project focused on developing next-generation hydrogen storage solutions for sustainable aviation, targeting long-range commercial flights.</p><ul><li>Designed CFRP-based cryogenic tank with <span class="highlight">83% gravimetric efficiency</span>, exceeding industry standards</li><li>Engineered storage solution for <span class="highlight">5,000 kg hydrogen</span> enabling <span class="highlight">10,000 km flights</span> for 200 passengers</li><li>Developed advanced insulation system limiting fuel loss to <span class="highlight">&lt;0.1% per day</span></li></ul></div></div>
+
+    <!-- New Modals -->
+    <div id="signLangModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('signLangModal')">&times;</span><h2>Sign Language Detection</h2><p>A self-driven project to build a real-time sign language detection system using computer vision and deep learning.</p><ul><li>Implemented a CNN to recognize and classify over <span class="highlight">20 different sign language gestures</span>, processing over 900 fps.</li><li>Achieved an accuracy rate of <span class="highlight">90%</span> across a dataset of 10,000 images.</li><li>Developed an intuitive interface for real-time sign language detection for testing and demonstration.</li></ul></div></div>
+    <div id="pfrModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('pfrModal')">&times;</span><h2>Modelling a Non-Isothermal PFR</h2><p>Project for a Machine Learning in Reaction Engineering course focused on modeling a non-isothermal Plug Flow Reactor (PFR) for CO₂ methanation.</p><ul><li>Modeled the PFR with dispersion, pressure drop, and energy balance equations.</li><li>Processed over 5000 data points with StandardScaler, PCA & DBSCAN, removing 250 outliers.</li><li>Designed a neural network with 2 hidden layers (ReLU + sigmoid), achieving an <span class="highlight">R² score of 85%</span> for conversion prediction.</li></ul></div></div>
+    <div id="arModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('arModal')">&times;</span><h2>Augmented Reality Campus Guide (InstiSocial)</h2><p>Developed as part of the XRIG (Extended Reality Interest Group) under Professor Manivannan, this project aimed to enhance campus navigation using AR.</p><ul><li>Developed an augmented reality app using <span class="highlight">Unity and C#</span> as part of a 3-member team.</li><li>Built an AR application from the ground up that guides users to the locations of <span class="highlight">10+ live institute events</span>.</li><li>Identified 3 bugs and facilitated the implementation of solutions, reducing user-reported problems by over 10%.</li></ul></div></div>
+    <div id="smartMaterialsModal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeModal('smartMaterialsModal')">&times;</span><h2>Smart Materials for Chip Cooling</h2><p>A project exploring novel cooling solutions for high-performance electronics using principles of smart materials.</p><ul><li>Simulated a unique <span class="highlight">perspiration-based cooling system</span> for high-performance chips to control system temperature.</li><li>Developed a codebase that integrated dynamic material properties for conducting <span class="highlight">finite element thermal analysis</span>.</li><li>Analyzed 5+ relevant concepts and independently ideated on over 3 improvements and 4 critiques to the source paper.</li></ul></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Particle class definition ---
+            class Particle {
+                constructor(canvas, context, colors, speedMultiplier = 1) {
+                    this.canvas = canvas;
+                    this.ctx = context;
+                    this.colors = colors;
+                    this.x = Math.random() * this.canvas.width;
+                    this.y = Math.random() * this.canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.8 * speedMultiplier;
+                    this.speedY = (Math.random() - 0.5) * 0.8 * speedMultiplier;
+                    this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                    this.opacity = Math.random() * 0.5 + 0.2;
+                }
+                
+                update(mouse) {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    
+                    if (this.x < 0 || this.x > this.canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > this.canvas.height) this.speedY *= -1;
+                    
+                    if (mouse && mouse.x && mouse.y) {
+                        const dx = mouse.x - this.x;
+                        const dy = mouse.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 100) {
+                            this.x -= dx * 0.02;
+                            this.y -= dy * 0.02;
+                        }
+                    }
+                }
+                
+                draw() {
+                    this.ctx.globalAlpha = this.opacity;
+                    this.ctx.fillStyle = this.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            // --- Animation Engine ---
+            function createAnimation(canvas, numParticles, colors, speedMultiplier = 1, connectDistance = 120) {
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                let mouse = { x: null, y: null };
+                let animationFrameId;
+
+                function resize() {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    init();
+                }
+
+                function init() {
+                    particles = [];
+                    for (let i = 0; i < numParticles; i++) {
+                        particles.push(new Particle(canvas, ctx, colors, speedMultiplier));
+                    }
+                }
+
+                function connect() {
+                    for (let a = 0; a < particles.length; a++) {
+                        for (let b = a + 1; b < particles.length; b++) {
+                            const dx = particles[a].x - particles[b].x;
+                            const dy = particles[a].y - particles[b].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < connectDistance) {
+                                const opacity = 1 - (distance / connectDistance);
+                                ctx.globalAlpha = opacity * 0.3;
+                                ctx.strokeStyle = colors[0];
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(particles[a].x, particles[a].y);
+                                ctx.lineTo(particles[b].x, particles[b].y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    for (let i = 0; i < particles.length; i++) {
+                        particles[i].update(mouse);
+                        particles[i].draw();
+                    }
+                    connect();
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+
+                window.addEventListener('resize', resize);
+                window.addEventListener('mousemove', (event) => {
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = event.clientX - rect.left;
+                    mouse.y = event.clientY - rect.top;
+                });
+                 window.addEventListener('mouseout', () => {
+                    mouse.x = null;
+                    mouse.y = null;
+                });
+                
+                resize();
+                animate();
+            }
+
+            // --- Setup Canvases ---
+            const colors = ["#00f5ff", "#ff2d88", "#7dd3fc", "#f472b6"]; // Cyan/Pink palette
+            const headerCanvas = document.getElementById('header-bg');
+            createAnimation(headerCanvas, 150, colors, 1.5, 100);
+            const mainCanvas = document.getElementById('interactive-bg');
+            createAnimation(mainCanvas, 80, colors, 1, 120);
+
+            // --- Scroll Fade Logic ---
+            window.addEventListener('scroll', () => {
+                const headerBg = document.getElementById('header-bg');
+                const experienceSection = document.getElementById('experience');
+                if (!headerBg || !experienceSection) return;
+                
+                const experienceTop = experienceSection.offsetTop;
+                const headerHeight = document.querySelector('.header').offsetHeight;
+                const fadeEnd = experienceTop - headerHeight / 2;
+                
+                const scrollY = window.scrollY;
+                let opacity = 1;
+
+                if (scrollY > 0) {
+                    opacity = Math.max(0, 1 - scrollY / fadeEnd);
+                }
+                headerBg.style.opacity = opacity;
+            });
+
+            // --- Typing effect ---
+            const subtitleEl = document.getElementById('subtitle-text');
+            const text = "[ Chemical Engineer + AI Innovator ]";
+            let index = 0;
+            
+            function type() {
+                if (index < text.length) {
+                    subtitleEl.innerHTML = text.slice(0, index + 1) + '<span class="cursor">&nbsp;</span>';
+                    index++;
+                    setTimeout(type, 100);
+                } else {
+                     subtitleEl.innerHTML = text + '<span class="cursor">&nbsp;</span>';
+                }
+            }
+            type();
+            
+            // --- Scroll Reveal ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+            
+            // --- Floating Nav Logic ---
+            const navbar = document.getElementById('navbar');
+            const header = document.querySelector('.header');
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        navbar.classList.add('visible');
+                    } else {
+                        navbar.classList.remove('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            navObserver.observe(header);
+            
+            // --- Nav Active State Logic ---
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('#navbar a');
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                           link.classList.remove('active');
+                           if(link.getAttribute('href').substring(1) === entry.target.id) {
+                               link.classList.add('active');
+                           }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+
+            // --- 3D Tilt Effect for Cards ---
+            document.querySelectorAll('.card, .project-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const { width, height } = rect;
+                    const rotateX = (y / height - 0.5) * -15; // Max 7.5 deg tilt
+                    const rotateY = (x / width - 0.5) * 15;   // Max 7.5 deg tilt
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                });
+            });
+
+
+            // --- Modal Logic ---
+            window.showModal = function(modalId, event) {
+                event.preventDefault(); // This is the fix for the scroll issue
+                document.getElementById(modalId).style.display = 'block';
+            }
+
+            window.closeModal = function(modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                const modals = document.getElementsByClassName('modal');
+                for (let i = 0; i < modals.length; i++) {
+                    if (event.target == modals[i]) {
+                        modals[i].style.display = "none";
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
