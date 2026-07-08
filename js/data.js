@@ -25,7 +25,7 @@ export const NODES = [
     period: 'Bengaluru · Chennai',
     body: [
       'I build retrieval systems, agents, and knowledge graphs. Most of my work lives where language models meet structured knowledge: GraphRAG frameworks, multi-agent pipelines, and models that run on local hardware.',
-      'Final-year B.Tech at IIT Madras, class of 2026. Currently an AI engineering intern at Eagle Eye Networks.',
+      'B.Tech from IIT Madras, class of 2026. Currently doing AI engineering at Eagle Eye Networks.',
       'This site is a knowledge graph because that is what I make. Every node is real work; drag, click, and explore.',
     ],
     tech: [],
