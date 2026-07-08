@@ -18,5 +18,5 @@ Personal portfolio: "The Constellation" — Suprasidh's career as an interactive
 - Node click = pointerup within 6px of pointerdown (drag guard). Camera focus tween ~`dist = max(9, size*13)`; tighter distances cause label pileups.
 - Local test: `python3 -m http.server <port>`; Chrome caches modules aggressively, use a fresh port after JS edits.
 
-## State (2026-07-07)
-- Site complete and verified end-to-end (desktop graph, panels, list mode, mobile). Committed locally; **no remote yet, not deployed** — needs user decision on repo name + GitHub Pages under `suprxsidh` (resume PDF with phone number would go public).
+## State (2026-07-08)
+- **LIVE at https://suprxsidh.github.io** — origin is `suprxsidh/suprxsidh.github.io`, Pages serves main/root. Old live site + old resume backed up in `legacy/`. Push to main = deploy.
