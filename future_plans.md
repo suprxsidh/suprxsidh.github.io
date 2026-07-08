@@ -1,6 +1,10 @@
 # future_plans — portfolio-website
 
-- Deploy: create `suprxsidh` repo (e.g. `suprxsidh.github.io` or `portfolio` + Pages), push, verify live. Decide whether resume PDF (has phone number) stays or gets a scrubbed version.
+## Next pass (user feedback 2026-07-08)
+- Update a few individual nodes (user to specify which + what).
+- Space the constellation out a bit more: increase cluster spread / node distances in `js/data.js` pos values (maybe scale all non-center positions ~1.15-1.25x and re-verify no label collisions).
+
+## Later
 - OG image: render a still of the constellation for link previews (og:image currently unset).
 - Writing/blog node cluster once there's content.
 - Per-project case-study pages for flagships (ChemGPT, Kai) with diagrams; node panel links out.
