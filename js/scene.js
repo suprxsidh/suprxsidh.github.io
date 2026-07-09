@@ -148,6 +148,104 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     return new THREE.CanvasTexture(c);
   })();
 
+  // Deterministic surface textures (same Park-Miller PRNG as the starfield
+  // above) so planets/moons read as painted bodies instead of flat-shaded
+  // spheres, while staying identical across reloads.
+  const seededRand = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  // Full-color painted texture per planet family. material.color is left
+  // white so these paint colors show through unmodified; the planet's
+  // emissive/halo tint still carries the type color.
+  const PLANET_TEXTURES = {
+    experience: (() => { // Mars: rusty blotches + dark basalt patches
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const rand = seededRand(311);
+      ctx.fillStyle = '#b5451f'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 46; i++) {
+        const x = rand() * 256, y = rand() * 256, r = 10 + rand() * 30;
+        ctx.fillStyle = rand() > 0.45 ? 'rgba(74,32,16,0.4)' : 'rgba(214,140,86,0.32)';
+        ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.5 + rand() * 0.3), rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
+      }
+      for (let i = 0; i < 700; i++) {
+        const x = rand() * 256, y = rand() * 256, v = rand();
+        ctx.fillStyle = v > 0.5 ? 'rgba(50,20,8,0.14)' : 'rgba(240,180,120,0.12)';
+        ctx.fillRect(x, y, 1.4, 1.4);
+      }
+      return new THREE.CanvasTexture(c);
+    })(),
+    project: (() => { // Earth: ocean base, green/brown landmasses, cloud wisps
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const rand = seededRand(613);
+      ctx.fillStyle = '#3f7ea6'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 20; i++) {
+        const x = rand() * 256, y = rand() * 256, r = 14 + rand() * 26;
+        ctx.fillStyle = rand() > 0.5 ? 'rgba(70,120,70,0.55)' : 'rgba(90,90,60,0.45)';
+        ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.55 + rand() * 0.3), rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
+      }
+      for (let i = 0; i < 10; i++) {
+        const y = rand() * 256, h = 6 + rand() * 10;
+        ctx.fillStyle = 'rgba(240,244,240,0.22)';
+        ctx.beginPath(); ctx.ellipse(rand() * 256, y, 40 + rand() * 50, h, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      return new THREE.CanvasTexture(c);
+    })(),
+    education: (() => { // Mercury: grey cratered rock
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const rand = seededRand(919);
+      ctx.fillStyle = '#8c8072'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 60; i++) {
+        const x = rand() * 256, y = rand() * 256, r = 4 + rand() * 16;
+        ctx.fillStyle = 'rgba(56,48,40,0.35)';
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(200,190,175,0.3)';
+        ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.6, 0, Math.PI * 2); ctx.fill();
+      }
+      return new THREE.CanvasTexture(c);
+    })(),
+    skills: (() => { // Venus: cream cloud bands
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const rand = seededRand(1237);
+      ctx.fillStyle = '#d6c07a'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 14; i++) {
+        const y = (i / 14) * 256 + rand() * 8;
+        ctx.strokeStyle = rand() > 0.5 ? 'rgba(250,240,210,0.28)' : 'rgba(160,130,70,0.22)';
+        ctx.lineWidth = 4 + rand() * 8;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        for (let x = 0; x <= 256; x += 32) ctx.lineTo(x, y + Math.sin(x * 0.05 + i) * 10);
+        ctx.stroke();
+      }
+      return new THREE.CanvasTexture(c);
+    })(),
+  };
+  for (const tex of Object.values(PLANET_TEXTURES)) tex.colorSpace = THREE.SRGBColorSpace;
+
+  // Shared grayscale mottle/crater texture for moons: multiplies against
+  // each moon's own material.color rather than carrying its own hue.
+  const moonTexture = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const ctx = c.getContext('2d');
+    const rand = seededRand(2027);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 46; i++) {
+      const x = rand() * 128, y = rand() * 128, r = 3 + rand() * 11;
+      const v = Math.round(140 + rand() * 90);
+      ctx.fillStyle = `rgba(${v},${v},${v},0.4)`;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    for (let i = 0; i < 320; i++) {
+      const x = rand() * 128, y = rand() * 128, v = Math.round(110 + rand() * 130);
+      ctx.fillStyle = `rgba(${v},${v},${v},0.18)`;
+      ctx.fillRect(x, y, 1, 1);
+    }
+    return new THREE.CanvasTexture(c);
+  })();
+  moonTexture.colorSpace = THREE.SRGBColorSpace;
+
   // tint multiplies the baked champagne gradient toward a body's own hue so
   // each planet/moon glows in its own color instead of a uniform warm haze.
   const makeHalo = (size, opacity, tint) => {
@@ -225,10 +323,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     anchor.position.set(planet.radius, 0, 0);
     pivot.add(anchor);
 
+    const planetTex = PLANET_TEXTURES[planet.type];
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(planet.size, 32, 24),
       new THREE.MeshStandardMaterial({
-        color, metalness: 0.22, roughness: 0.38,
+        color: 0xffffff, map: planetTex, bumpMap: planetTex, bumpScale: 0.035,
+        metalness: 0.22, roughness: 0.38,
         emissive: color, emissiveIntensity: 0.5,
       })
     );
@@ -258,7 +358,8 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       const moon = new THREE.Mesh(
         new THREE.SphereGeometry(moonSize, 24, 18),
         new THREE.MeshStandardMaterial({
-          color: moonColor, metalness: 0.2, roughness: 0.35,
+          color: moonColor, map: moonTexture, bumpMap: moonTexture, bumpScale: 0.025,
+          metalness: 0.2, roughness: 0.35,
           emissive: moonColor, emissiveIntensity: 0.62,
         })
       );

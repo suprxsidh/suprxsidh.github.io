@@ -84,3 +84,35 @@ Verified visually via local server + agent-browser screenshots: colored
 halos read distinctly per planet, skills/education now cluster on the inner
 rings instead of skills sitting alone outside, sun facets are visibly
 angular on close zoom, no console errors.
+
+## Addendum 2026-07-09 (3): procedural surface textures
+Feedback: planet/moon surfaces read "too basic" (flat single-color spheres).
+
+Added deterministic canvas-generated surface textures, reusing the same
+Park-Miller PRNG pattern already used for the starfield (fixed seed per
+texture, so the look is identical across reloads/deploys):
+- **Planets** (`PLANET_TEXTURES` in `scene.js`, one per category type): each
+  is a full-color painted 256x256 canvas matching its inner-planet
+  inspiration — Mars gets rusty blotches + dark basalt patches, Earth gets
+  ocean base + green/brown landmasses + cloud wisps, Mercury gets circular
+  impact craters, Venus gets wavy cream cloud bands. `material.color` is set
+  to white so the painted colors show through unmodified; `emissive` still
+  carries the type color so the halo/glow tie-in from the previous pass is
+  unchanged. Also used as `bumpMap` (`bumpScale: 0.035`) for cheap relief
+  under the sun light.
+- **Moons** share one grayscale mottled/cratered 128x128 texture
+  (`moonTexture`) used as both `map` and `bumpMap` (`bumpScale: 0.025`);
+  grayscale multiplies against each moon's own `material.color`, so every
+  moon keeps its individual hue from the round-1 tuning while gaining
+  surface variation, without needing 16 separate textures.
+- Both texture sets set `colorSpace = THREE.SRGBColorSpace` for correct
+  color output (existing halo/nebula canvas textures don't set this,
+  intentionally left alone since they're translucent additive glows where
+  it doesn't matter).
+
+Sun geometry/material untouched (already addressed via the icosahedron
+detail-0 change in addendum 2).
+
+Verified visually via local server + agent-browser: zoomed screenshots show
+clearly mottled/cratered/banded surfaces per planet type distinct from the
+previous flat-color spheres, no console errors.
