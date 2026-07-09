@@ -20,5 +20,7 @@ Personal portfolio: "The Constellation" — Suprasidh's career as an interactive
 
 - Galaxy ambience lives entirely in `js/scene.js`: seeded two-shell starfield + nebula sprites (both `fog: false` or fog swallows them), emissive star-look node materials. Site identity is one-word "Suprasidh".
 
-## State (2026-07-08)
+## State (2026-07-09)
+- Galaxy retheme deployed (commit b0b8bd1): one-word "Suprasidh", Space Grotesk, starfield + nebula, banding/label-contrast fixes.
+
 - **LIVE at https://suprxsidh.github.io** — origin is `suprxsidh/suprxsidh.github.io`, Pages serves main/root. Old live site + old resume backed up in `legacy/`. Push to main = deploy.
