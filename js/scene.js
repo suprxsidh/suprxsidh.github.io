@@ -148,10 +148,13 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     return new THREE.CanvasTexture(c);
   })();
 
-  const makeHalo = (size, opacity) => {
+  // tint multiplies the baked champagne gradient toward a body's own hue so
+  // each planet/moon glows in its own color instead of a uniform warm haze.
+  const makeHalo = (size, opacity, tint) => {
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({
       map: haloTexture, transparent: true, depthWrite: false,
       opacity, blending: THREE.AdditiveBlending,
+      color: tint !== undefined ? tint : 0xffffff,
     }));
     halo.scale.setScalar(size);
     return halo;
@@ -194,7 +197,7 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
 
   // sun
   const sun = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(meNode.size, 1),
+    new THREE.IcosahedronGeometry(meNode.size, 0),
     new THREE.MeshStandardMaterial({
       color: 0xe9d9b8, flatShading: true, metalness: 0.1, roughness: 0.4,
       emissive: 0xc9973a, emissiveIntensity: 1.15,
@@ -225,12 +228,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(planet.size, 32, 24),
       new THREE.MeshStandardMaterial({
-        color, metalness: 0.15, roughness: 0.55,
-        emissive: color, emissiveIntensity: 0.32,
+        color, metalness: 0.22, roughness: 0.38,
+        emissive: color, emissiveIntensity: 0.5,
       })
     );
     mesh.userData = { kind: 'planet', planet, baseScale: 1 };
-    mesh.add(makeHalo(planet.size * 4.6, 0.5));
+    mesh.add(makeHalo(planet.size * 4.6, 0.55, color));
     makeLabel(mesh, TYPES[planet.type].label, 'node-label planet-label', -planet.size - 0.15);
     anchor.add(mesh);
     meshes.push(mesh);
@@ -255,13 +258,13 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       const moon = new THREE.Mesh(
         new THREE.SphereGeometry(moonSize, 24, 18),
         new THREE.MeshStandardMaterial({
-          color: moonColor, metalness: 0.1, roughness: 0.5,
-          emissive: moonColor, emissiveIntensity: 0.5,
+          color: moonColor, metalness: 0.2, roughness: 0.35,
+          emissive: moonColor, emissiveIntensity: 0.62,
         })
       );
       moon.position.set(moonR, 0, 0);
       moon.userData = { kind: 'moon', node: item, planetType: planet.type, baseScale: 1 };
-      moon.add(makeHalo(moonSize * 4.4, 0.5));
+      moon.add(makeHalo(moonSize * 4.4, 0.55, moonColor));
       makeLabel(moon, item.label, 'node-label moon-label', -moonSize - 0.1);
       moonPivot.add(moon);
 

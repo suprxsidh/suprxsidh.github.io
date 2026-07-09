@@ -17,14 +17,16 @@ export const TYPES = {
   skills:     { color: 0xd6c07a, label: 'Skills' },     // Venus
 };
 
-// One planet per category. Inclination tilts each orbit plane at a
+// One planet per category. Education and skills (fewer moons) sit on the
+// inner, tighter orbits; experience and projects (more moons) sit outer
+// where there's room to spread out. Inclination tilts each orbit plane at a
 // noticeably distinct angle (mixed signs) so the four planes visibly cross
 // rather than reading as one flat disc.
 export const PLANETS = [
-  { type: 'experience', size: 0.85, radius: 5.5,  angle0: 25,  speed: 0.032, incl: 0.2094 },  // 12°
-  { type: 'project',    size: 0.9,  radius: 9.5,  angle0: 150, speed: 0.021, incl: -0.3142 }, // -18°
-  { type: 'education',  size: 0.75, radius: 13.0, angle0: 275, speed: 0.015, incl: 0.1396 },  // 8°
-  { type: 'skills',     size: 0.7,  radius: 16.0, angle0: 70,  speed: 0.011, incl: -0.2618 }, // -15°
+  { type: 'education',  size: 0.75, radius: 5.5,  angle0: 25,  speed: 0.032, incl: 0.2094 },  // 12°
+  { type: 'skills',     size: 0.7,  radius: 9.5,  angle0: 150, speed: 0.021, incl: -0.3142 }, // -18°
+  { type: 'experience', size: 0.85, radius: 13.0, angle0: 275, speed: 0.015, incl: 0.1396 },  // 8°
+  { type: 'project',    size: 0.9,  radius: 16.0, angle0: 70,  speed: 0.011, incl: -0.2618 }, // -15°
 ];
 
 export const NODES = [

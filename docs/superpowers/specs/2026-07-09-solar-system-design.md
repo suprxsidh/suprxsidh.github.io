@@ -53,3 +53,34 @@ Per-moon hex lives on each moon node in `data.js` (`color` field); `scene.js` fa
 - Experience: 12°, Projects: -18°, Education: 8°, Skills: -15°
 
 `systemGroup.rotation.x` stays at +0.28; per-planet `incline.rotation.z` is unaffected by that base tilt.
+
+## Addendum 2026-07-09 (2): orbit reorder, less-spherical sun, color pop
+Second round of feedback after the first tuning pass.
+
+**Orbit reorder** — skills (2 moons) read as small and detached out on the
+outermost ring alone. Swapped the orbit-slot assignments in `PLANETS` so
+education and skills (fewer moons) take the two inner, tighter orbits, and
+experience and projects (more moons, esp. projects at 7) take the two outer
+orbits where there's room to spread out. Radius/speed/angle0/incl values
+per slot are unchanged, only which `type` occupies each slot moved.
+
+**Sun shape** — `IcosahedronGeometry(size, 1)` read as basically a smooth
+ball; dropped detail to `0` so the facets are fewer and larger, giving the
+sun a visibly crystalline/gem silhouette instead of reading as a sphere.
+
+**Color pop against the starfield/nebula bg** — the flat-diffuse planet/moon
+spheres read dull next to the glowing nebula sprites. Two changes:
+- `makeHalo()` now takes an optional `tint` argument that sets the sprite
+  material's `color`, multiplying the baked champagne gradient toward the
+  body's own hue instead of always glowing uniform warm-champagne. Planets
+  and moons now pass their own color as the tint; the sun's corona is left
+  untinted (stays warm-gold, matches its emissive).
+- Bumped planet material to `metalness 0.22 / roughness 0.38 /
+  emissiveIntensity 0.5` (was 0.15/0.55/0.32) and moon material to
+  `metalness 0.2 / roughness 0.35 / emissiveIntensity 0.62` (was
+  0.1/0.5/0.5) for more specular pop and a stronger glow.
+
+Verified visually via local server + agent-browser screenshots: colored
+halos read distinctly per planet, skills/education now cluster on the inner
+rings instead of skills sitting alone outside, sun facets are visibly
+angular on close zoom, no console errors.
