@@ -24,9 +24,16 @@ Personal portfolio: an interactive 3D solar system — sun = "Suprasidh", planet
 - Local test: `python3 -m http.server <port>`; Chrome caches modules aggressively, use a fresh port after JS edits.
 
 - Galaxy ambience lives entirely in `js/scene.js`: seeded two-shell starfield + nebula sprites (both `fog: false` or fog swallows them), emissive star-look node materials. Site identity is one-word "Suprasidh".
+- Category colors are inner-planet themed (`TYPES` in `data.js`): Experience/Mars, Projects/Earth, Education/Mercury, Skills/Venus. Moons carry their own `color` field (hand-picked shade within their planet's family); `scene.js` falls back to `TYPES[type].color` if a moon has none.
+- `PLANETS` array order in `data.js` = orbital radius order (inner to outer), independent of `ORDER` (list-mode section order, still experience/project/education/skills). Currently education, skills, experience, project inner-to-outer — fewer-moon categories inside, more-moon categories outside. Reordering just swaps which `type` occupies a radius/speed/angle0/incl slot; the slot values themselves are untouched.
+- Sun uses `IcosahedronGeometry(size, 0)` (not 1) — deliberately low-poly/faceted so it reads as an angular gem, not a smooth sphere. Don't "fix" this by raising detail.
+- `makeHalo(size, opacity, tint)`: optional `tint` multiplies the baked champagne halo texture toward a body's own hue (used for planet/moon glow). Omit `tint` (or pass none) for the original uniform warm-champagne glow (used for the sun's corona).
+- Planet/moon surfaces use deterministic canvas-painted textures (`PLANET_TEXTURES` per type, shared grayscale `moonTexture` for all moons tinted by `material.color`), generated with the same seeded Park-Miller PRNG (`seededRand`) as the starfield — fixed seeds so the look never changes across reloads. Moon texture is grayscale-only so it multiplies against each moon's own hue instead of carrying color itself.
+- **Verify visual changes at the DEFAULT camera zoom, not just close-up screenshots.** A texture/detail change can look obviously different when zoomed in via agent-browser yet be nearly invisible to the user at the normal viewing distance where planets render small — screenshot the default view first and confirm the change actually reads there before claiming a visual tweak is done.
+- Many stray `python -m http.server` instances tend to accumulate across a session (each JS edit needs a fresh port to dodge Chrome's module cache) — check `lsof -iTCP -sTCP:LISTEN` and kill strays on wrapup rather than letting them pile up indefinitely.
 
 ## State (2026-07-09)
 - Galaxy retheme deployed (commit b0b8bd1): one-word "Suprasidh", Space Grotesk, starfield + nebula, banding/label-contrast fixes.
-- Solar system restructure committed locally (ec3a79f), NOT pushed — awaiting user review/deploy. See BUILD_PLAN.md.
+- Solar system restructure + 3 tuning passes committed locally (ec3a79f, f39055c, b8119e5, b3afb9b, 69cf380), NOT pushed. BLOCKED: user reports not seeing tuning-pass-3 (textures) rendered — see BUILD_PLAN.md "Current bug" section for hypotheses (stale cached tab vs. effect too subtle at default zoom) before touching more code.
 
 - **LIVE at https://suprxsidh.github.io** — origin is `suprxsidh/suprxsidh.github.io`, Pages serves main/root. Old live site + old resume backed up in `legacy/`. Push to main = deploy.
