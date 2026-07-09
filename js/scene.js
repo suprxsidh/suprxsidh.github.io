@@ -1,16 +1,18 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { NODES, EDGES, TYPES } from './data.js';
+import { NODES, EDGES, TYPES, PLANETS } from './data.js';
 
 const IDLE_RESUME_MS = 18000;
+const HOME_POS = new THREE.Vector3(0, 10, 28);
+const DEG = Math.PI / 180;
 
-export function createScene({ mount, labelMount, onNodeClick }) {
+export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) {
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0a0c, 0.016);
+  scene.fog = new THREE.FogExp2(0x0a0a0c, 0.009);
 
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-  camera.position.set(0, 1.6, 16.5);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 260);
+  camera.position.copy(HOME_POS);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -18,12 +20,12 @@ export function createScene({ mount, labelMount, onNodeClick }) {
 
   const labelRenderer = new CSS2DRenderer({ element: labelMount });
 
-  // lighting: warm key, cool violet rim, low ambient
-  scene.add(new THREE.AmbientLight(0xc9a86a, 0.35));
-  const key = new THREE.DirectionalLight(0xf0dcb0, 2.2);
-  key.position.set(6, 8, 10);
-  scene.add(key);
-  const rim = new THREE.DirectionalLight(0x6a5a8a, 1.4);
+  // lighting: the sun itself is the key light; faint fill + violet rim keep
+  // the dark sides readable.
+  scene.add(new THREE.AmbientLight(0xc9a86a, 0.28));
+  const sunLight = new THREE.PointLight(0xf0dcb0, 160, 0, 1.8);
+  scene.add(sunLight);
+  const rim = new THREE.DirectionalLight(0x6a5a8a, 1.0);
   rim.position.set(-8, -4, -6);
   scene.add(rim);
 
@@ -31,10 +33,10 @@ export function createScene({ mount, labelMount, onNodeClick }) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.enablePan = false;
-  controls.minDistance = 6;
-  controls.maxDistance = 30;
+  controls.minDistance = 5;
+  controls.maxDistance = 44;
   controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.5;
+  controls.autoRotateSpeed = 0.4;
 
   let lastInteraction = 0;
   controls.addEventListener('start', () => {
@@ -62,7 +64,7 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     scene.add(new THREE.Points(geo, mat));
   }
 
-  // distant starfield: two shells so the graph sits inside a galaxy, not a void.
+  // distant starfield: two shells so the system sits inside a galaxy, not a void.
   // fog would swallow anything this far out, so star materials opt out of it.
   {
     let seed = 42;
@@ -90,11 +92,11 @@ export function createScene({ mount, labelMount, onNodeClick }) {
       });
       scene.add(new THREE.Points(geo, mat));
     };
-    makeShell(1400, 60, 110, 0.28, 0.75); // faint far field
-    makeShell(600, 45, 75, 0.45, 0.9);    // nearer, brighter stars
+    makeShell(1400, 70, 120, 0.28, 0.75); // faint far field
+    makeShell(600, 55, 85, 0.45, 0.9);    // nearer, brighter stars
   }
 
-  // nebula haze: large soft sprites behind the clusters
+  // nebula haze: large soft sprites behind the system
   {
     const nebulaTexture = (r, g, b) => {
       const c = document.createElement('canvas');
@@ -113,11 +115,11 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     const violet = nebulaTexture(106, 90, 138);
     const champagne = nebulaTexture(201, 168, 106);
     const CLOUDS = [
-      [violet, [-18, 6, -26], 46, 0.15],
-      [violet, [16, -8, -30], 54, 0.13],
-      [champagne, [8, 10, -24], 38, 0.10],
-      [champagne, [-10, -12, -20], 32, 0.08],
-      [violet, [0, 16, -34], 60, 0.10],
+      [violet, [-22, 8, -32], 50, 0.15],
+      [violet, [20, -10, -36], 58, 0.13],
+      [champagne, [10, 12, -30], 42, 0.10],
+      [champagne, [-12, -14, -26], 36, 0.08],
+      [violet, [0, 18, -40], 64, 0.10],
     ];
     for (const [map, pos, scale, opacity] of CLOUDS) {
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -146,75 +148,222 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     return new THREE.CanvasTexture(c);
   })();
 
-  // nodes
-  const nodeGroup = new THREE.Group();
-  scene.add(nodeGroup);
-  const meshes = [];
-
-  for (const node of NODES) {
-    const color = TYPES[node.type].color;
-    let mesh;
-    if (node.id === 'me') {
-      mesh = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(node.size, 0),
-        new THREE.MeshStandardMaterial({
-          color: 0xdec894, flatShading: true, metalness: 0.4, roughness: 0.3,
-          emissive: 0x8a6a2a, emissiveIntensity: 0.85,
-        })
-      );
-    } else {
-      mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(node.size, 28, 20),
-        new THREE.MeshStandardMaterial({
-          color, metalness: 0.1, roughness: 0.5,
-          emissive: color, emissiveIntensity: 0.6,
-        })
-      );
-    }
-    mesh.position.set(...node.pos);
-    mesh.userData.node = node;
-    mesh.userData.baseScale = 1;
-
+  const makeHalo = (size, opacity) => {
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({
       map: haloTexture, transparent: true, depthWrite: false,
-      opacity: node.id === 'me' ? 0.9 : 0.6, blending: THREE.AdditiveBlending,
+      opacity, blending: THREE.AdditiveBlending,
     }));
-    halo.scale.setScalar(node.size * (node.id === 'me' ? 5.6 : 5.2));
-    mesh.add(halo);
+    halo.scale.setScalar(size);
+    return halo;
+  };
 
-    const labelEl = document.createElement('div');
-    labelEl.className = node.id === 'me' ? 'node-label me-label' : 'node-label';
-    labelEl.textContent = node.label;
-    const label = new CSS2DObject(labelEl);
-    label.position.set(0, -node.size, 0);
+  const makeLabel = (mesh, text, className, offsetY) => {
+    const el = document.createElement('div');
+    el.className = className;
+    el.textContent = text;
+    const label = new CSS2DObject(el);
+    label.position.set(0, offsetY, 0);
     mesh.add(label);
-    mesh.userData.labelEl = labelEl;
+    mesh.userData.labelEl = el;
+    return el;
+  };
 
-    nodeGroup.add(mesh);
+  const orbitRing = (radius, opacity) => {
+    const pts = [];
+    for (let i = 0; i <= 128; i++) {
+      const a = (i / 128) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius));
+    }
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    return new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: 0xc9a86a, transparent: true, opacity,
+    }));
+  };
+
+  // ---- the system ----
+  // sun at origin; each planet hangs off a pivot whose y-rotation is its
+  // orbital angle; moons repeat the same pattern around their planet anchor.
+  const systemGroup = new THREE.Group();
+  systemGroup.rotation.set(0.28, 0, 0.05); // tip the disc toward the camera
+  scene.add(systemGroup);
+
+  const meshes = [];       // raycast targets: sun + planets + moons
+  const planetSystems = {}; // type -> { pivot, anchor, moonPivots, moonRings, moonMeshes }
+  const meshById = {};      // item id -> moon mesh (for focus edges)
+  const meNode = NODES.find(n => n.id === 'me');
+
+  // sun
+  const sun = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(meNode.size, 1),
+    new THREE.MeshStandardMaterial({
+      color: 0xe9d9b8, flatShading: true, metalness: 0.1, roughness: 0.4,
+      emissive: 0xc9973a, emissiveIntensity: 1.15,
+    })
+  );
+  sun.userData = { kind: 'sun', node: meNode, baseScale: 1 };
+  const corona = makeHalo(meNode.size * 7, 0.85);
+  sun.add(corona);
+  sun.add(makeHalo(meNode.size * 13, 0.3)); // wide outer corona
+  makeLabel(sun, meNode.label, 'node-label me-label', -meNode.size);
+  systemGroup.add(sun);
+  meshes.push(sun);
+
+  for (const planet of PLANETS) {
+    const color = TYPES[planet.type].color;
+    const incline = new THREE.Group();
+    incline.rotation.z = planet.incl;
+    systemGroup.add(incline);
+
+    incline.add(orbitRing(planet.radius, 0.10));
+
+    const pivot = new THREE.Group();
+    incline.add(pivot);
+    const anchor = new THREE.Group();
+    anchor.position.set(planet.radius, 0, 0);
+    pivot.add(anchor);
+
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(planet.size, 32, 24),
+      new THREE.MeshStandardMaterial({
+        color, metalness: 0.15, roughness: 0.55,
+        emissive: color, emissiveIntensity: 0.32,
+      })
+    );
+    mesh.userData = { kind: 'planet', planet, baseScale: 1 };
+    mesh.add(makeHalo(planet.size * 4.6, 0.5));
+    makeLabel(mesh, TYPES[planet.type].label, 'node-label planet-label', -planet.size - 0.15);
+    anchor.add(mesh);
     meshes.push(mesh);
-  }
 
-  // gently bowed edges
-  {
-    const mat = new THREE.LineBasicMaterial({
-      color: 0xc9a86a, transparent: true, opacity: 0.13,
-    });
-    const byId = Object.fromEntries(NODES.map(n => [n.id, new THREE.Vector3(...n.pos)]));
-    for (const [a, b] of EDGES) {
-      const va = byId[a], vb = byId[b];
-      const mid = va.clone().add(vb).multiplyScalar(0.5);
-      mid.multiplyScalar(a === 'me' || b === 'me' ? 1.12 : 1.08);
-      const curve = new THREE.QuadraticBezierCurve3(va, mid, vb);
-      const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(18));
-      scene.add(new THREE.Line(geo, mat));
+    const system = { pivot, anchor, planetMesh: mesh, moonPivots: [], moonRings: [], moonMeshes: [] };
+    planetSystems[planet.type] = system;
+
+    for (const item of NODES.filter(n => n.type === planet.type)) {
+      // moons render smaller than their data size and orbit clear of the
+      // planet surface; data radii stay the canonical spacing
+      const moonSize = item.size * 0.72;
+      const moonR = planet.size * 0.8 + item.orbit.radius;
+      const ring = orbitRing(moonR, 0.14);
+      ring.visible = false;
+      anchor.add(ring);
+      system.moonRings.push(ring);
+
+      const moonPivot = new THREE.Group();
+      anchor.add(moonPivot);
+
+      const moon = new THREE.Mesh(
+        new THREE.SphereGeometry(moonSize, 24, 18),
+        new THREE.MeshStandardMaterial({
+          color, metalness: 0.1, roughness: 0.5,
+          emissive: color, emissiveIntensity: 0.5,
+        })
+      );
+      moon.position.set(moonR, 0, 0);
+      moon.userData = { kind: 'moon', node: item, planetType: planet.type, baseScale: 1 };
+      moon.add(makeHalo(moonSize * 4.4, 0.5));
+      makeLabel(moon, item.label, 'node-label moon-label', -moonSize - 0.1);
+      moonPivot.add(moon);
+
+      system.moonPivots.push({ pivot: moonPivot, orbit: item.orbit });
+      system.moonMeshes.push(moon);
+      meshById[item.id] = moon;
+      meshes.push(moon);
     }
   }
 
-  // interaction
+  // ---- focus / reveal ----
+  let focused = null;      // mesh or null
+  let speedFactor = 1;     // orbital motion multiplier, eases toward target
+  let speedTarget = 1;
+  let focusEdges = [];     // Line objects, rebuilt per focus
+
+  function clearReveal() {
+    for (const sys of Object.values(planetSystems)) {
+      sys.moonRings.forEach(r => { r.visible = false; });
+      sys.moonMeshes.forEach(m => m.userData.labelEl.classList.remove('visible'));
+    }
+    focusEdges.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
+    focusEdges = [];
+  }
+
+  function revealPlanet(type) {
+    const sys = planetSystems[type];
+    sys.moonRings.forEach(r => { r.visible = true; });
+    sys.moonMeshes.forEach(m => m.userData.labelEl.classList.add('visible'));
+
+    // cross-link edges touching this planet's moons, built from frozen
+    // world positions (motion is paused while focused)
+    const ids = new Set(sys.moonMeshes.map(m => m.userData.node.id));
+    const va = new THREE.Vector3(), vb = new THREE.Vector3();
+    for (const [a, b] of EDGES) {
+      if (!ids.has(a) && !ids.has(b)) continue;
+      const ma = meshById[a], mb = meshById[b];
+      if (!ma || !mb) continue;
+      ma.getWorldPosition(va);
+      mb.getWorldPosition(vb);
+      const mid = va.clone().add(vb).multiplyScalar(0.5).multiplyScalar(1.07);
+      const curve = new THREE.QuadraticBezierCurve3(va.clone(), mid, vb.clone());
+      const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(20));
+      const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+        color: 0xc9a86a, transparent: true, opacity: 0.3,
+      }));
+      scene.add(line);
+      focusEdges.push(line);
+    }
+  }
+
+  function focusMesh(mesh) {
+    focused = mesh;
+    speedTarget = 0;
+    speedFactor = 0; // freeze instantly so the camera target holds still
+    controls.autoRotate = false;
+    lastInteraction = performance.now();
+
+    clearReveal();
+    const d = mesh.userData;
+    if (d.kind === 'planet') {
+      revealPlanet(d.planet.type);
+    } else if (d.kind === 'moon') {
+      revealPlanet(d.planetType);
+    }
+
+    const target = new THREE.Vector3();
+    mesh.getWorldPosition(target);
+    let dist;
+    if (d.kind === 'sun') dist = 13;
+    else if (d.kind === 'planet') {
+      const maxMoonR = Math.max(...planetSystems[d.planet.type].moonPivots.map(m => m.orbit.radius), 1);
+      dist = d.planet.size * 4 + (d.planet.size * 0.8 + maxMoonR) * 2.4;
+    } else dist = 5;
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    tween = {
+      t: 0,
+      fromTarget: controls.target.clone(),
+      toTarget: target,
+      fromPos: camera.position.clone(),
+      toPos: target.clone().add(dir.multiplyScalar(dist)),
+    };
+  }
+
+  function resetView() {
+    focused = null;
+    speedTarget = 1;
+    clearReveal();
+    tween = {
+      t: 0,
+      fromTarget: controls.target.clone(),
+      toTarget: new THREE.Vector3(0, 0, 0),
+      fromPos: camera.position.clone(),
+      toPos: HOME_POS.clone(),
+    };
+  }
+
+  // ---- interaction ----
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2(-10, -10);
   let hovered = null;
   let pointerDownAt = null;
+  let tween = null;
 
   renderer.domElement.addEventListener('pointermove', (e) => {
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -230,36 +379,16 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     pointerDownAt = null;
     if (moved > 6) return; // it was a drag, not a click
     if (hovered) {
-      focusNode(hovered);
-      onNodeClick(hovered.userData.node);
+      focusMesh(hovered);
+      if (hovered.userData.node) onNodeClick(hovered.userData.node);
+      else if (onPanelDismiss) onPanelDismiss(); // planets have no panel
+    } else if (focused) {
+      resetView(); // empty-space click zooms back out and resumes motion
+      if (onPanelDismiss) onPanelDismiss();
     }
   });
 
-  // camera focus tween
-  let tween = null;
-  function focusNode(mesh) {
-    const target = mesh.position.clone();
-    const dir = camera.position.clone().sub(controls.target).normalize();
-    const dist = Math.max(9, mesh.userData.node.size * 13);
-    tween = {
-      t: 0,
-      fromTarget: controls.target.clone(),
-      toTarget: target,
-      fromPos: camera.position.clone(),
-      toPos: target.clone().add(dir.multiplyScalar(dist)),
-    };
-  }
-  function resetView() {
-    tween = {
-      t: 0,
-      fromTarget: controls.target.clone(),
-      toTarget: new THREE.Vector3(0, 0, 0),
-      fromPos: camera.position.clone(),
-      toPos: new THREE.Vector3(0, 1.6, 16.5),
-    };
-  }
-
-  // entrance + idle float
+  // entrance
   const start = performance.now();
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
@@ -274,28 +403,44 @@ export function createScene({ mount, labelMount, onNodeClick }) {
   resize();
 
   let disposed = false;
+  let orbitTime = 0;
+  let prevNow = start;
+
   function animate(now) {
     if (disposed) return;
     requestAnimationFrame(animate);
     const elapsed = (now - start) / 1000;
+    const dt = Math.min(0.05, (now - prevNow) / 1000);
+    prevNow = now;
 
+    // orbital motion, eased to a stop while something is focused
+    speedFactor += (speedTarget - speedFactor) * Math.min(1, dt * 3);
+    orbitTime += dt * speedFactor;
+
+    for (const planet of PLANETS) {
+      const sys = planetSystems[planet.type];
+      sys.pivot.rotation.y = planet.angle0 * DEG + orbitTime * planet.speed;
+      // counter-rotate the anchor so moon orbits and labels stay stable
+      sys.anchor.rotation.y = -sys.pivot.rotation.y;
+      sys.moonPivots.forEach(({ pivot, orbit }) => {
+        pivot.rotation.y = orbit.angle0 * DEG + orbitTime * orbit.speed;
+      });
+    }
+
+    // entrance stagger + hover boost + sun life
     meshes.forEach((mesh, i) => {
-      const n = mesh.userData.node;
-      const enter = easeOut(Math.min(1, Math.max(0, (elapsed - i * 0.06) / 1.1)));
-      const hoverBoost = mesh === hovered ? 1.3 : 1;
+      const enter = easeOut(Math.min(1, Math.max(0, (elapsed - i * 0.05) / 1.1)));
+      const hoverBoost = mesh === hovered ? 1.25 : 1;
       mesh.scale.setScalar(enter * hoverBoost);
-      if (n.id === 'me') {
-        mesh.rotation.y = elapsed * 0.18;
-        mesh.rotation.x = Math.sin(elapsed * 0.1) * 0.15;
-      } else {
-        mesh.position.y = n.pos[1] + Math.sin(elapsed * 0.5 + i * 1.7) * 0.14;
-      }
     });
+    sun.rotation.y = elapsed * 0.12;
+    sun.rotation.x = Math.sin(elapsed * 0.08) * 0.12;
+    corona.material.opacity = 0.78 + Math.sin(elapsed * 1.1) * 0.09;
 
     if (elapsed > 0.9) labelMount.classList.add('labels-in');
 
-    // resume slow rotation after idle
-    if (!controls.autoRotate && lastInteraction &&
+    // resume slow rotation after idle, but never while focused
+    if (!focused && !controls.autoRotate && lastInteraction &&
         performance.now() - lastInteraction > IDLE_RESUME_MS) {
       controls.autoRotate = true;
     }

@@ -136,6 +136,17 @@ a { color: inherit; }
 .labels-in .node-label { opacity: 0.9; }
 .node-label.hot { color: var(--champagne-bright); }
 
+.node-label.planet-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: #c5bdd0;
+}
+
+/* moon labels stay hidden until their planet is focused (or the moon is hovered) */
+.labels-in .node-label.moon-label { opacity: 0; }
+.labels-in .node-label.moon-label.visible,
+.labels-in .node-label.moon-label.hot { opacity: 0.95; }
+
 .node-label.me-label {
   font-family: var(--display);
   font-weight: 500;

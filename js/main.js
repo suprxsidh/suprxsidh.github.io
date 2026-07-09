@@ -31,6 +31,7 @@ async function enterGraph() {
           hint.classList.add('faded');
           openPanel(node, () => sceneApi && sceneApi.resetView());
         },
+        onPanelDismiss: () => closePanel(true),
       });
     }
     stage.classList.remove('hidden');
@@ -49,7 +50,7 @@ function enterList() {
   stage.classList.add('hidden');
   showList();
   mode = 'list';
-  toggle.textContent = 'Constellation';
+  toggle.textContent = 'Solar system';
   toggle.setAttribute('aria-pressed', 'true');
 }
 

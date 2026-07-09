@@ -28,14 +28,17 @@ export function openPanel(node, onClose) {
   closeBtn.focus({ preventScroll: true });
 }
 
-export function closePanel() {
+// silent = hide the panel without firing the onClose callback, for when the
+// scene has already moved focus somewhere else and must not be reset
+export function closePanel(silent = false) {
   if (!panel.classList.contains('open')) return;
   panel.classList.remove('open');
   setTimeout(() => { panel.hidden = true; }, 560);
-  if (onCloseCallback) { onCloseCallback(); onCloseCallback = null; }
+  if (!silent && onCloseCallback) onCloseCallback();
+  onCloseCallback = null;
 }
 
-closeBtn.addEventListener('click', closePanel);
+closeBtn.addEventListener('click', () => closePanel());
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closePanel();
 });

@@ -1,6 +1,9 @@
-// Single source of truth for the constellation and the list view.
-// pos values are hand-placed: experience upper right, projects left,
-// education lower right, skills lower back.
+// Single source of truth for the solar system and the list view.
+// The scene is a solar system: the me node is the sun, each category in
+// PLANETS is a planet orbiting it, and every item node is a moon of its
+// category planet. All orbit parameters are hand-set: radius (world units),
+// angle0 (degrees at t=0), speed (radians per second). Deterministic, no
+// runtime randomness.
 
 export const TYPES = {
   me:         { color: 0xe9d9b8, label: '' },
@@ -10,23 +13,25 @@ export const TYPES = {
   skills:     { color: 0x746b82, label: 'Skills' },
 };
 
-export const REGIONS = [
-  { type: 'experience', pos: [7.2, 6.9, -1.5] },
-  { type: 'project',    pos: [-10.6, 1.7, 0.9] },
-  { type: 'education',  pos: [6.2, -6.3, 2.9] },
-  { type: 'skills',     pos: [-5.4, -7.2, -3.7] },
+// One planet per category. Inclination tilts each orbit plane slightly so
+// the system does not read as a flat disc.
+export const PLANETS = [
+  { type: 'experience', size: 0.85, radius: 5.5,  angle0: 25,  speed: 0.032, incl: 0.05 },
+  { type: 'project',    size: 0.9,  radius: 9.5,  angle0: 150, speed: 0.021, incl: -0.04 },
+  { type: 'education',  size: 0.75, radius: 13.0, angle0: 275, speed: 0.015, incl: 0.07 },
+  { type: 'skills',     size: 0.7,  radius: 16.0, angle0: 70,  speed: 0.011, incl: -0.06 },
 ];
 
 export const NODES = [
   {
-    id: 'me', type: 'me', size: 1.15, pos: [0, 0, 0],
+    id: 'me', type: 'me', size: 1.5,
     label: 'Suprasidh', sub: 'AI Engineer',
     title: 'Suprasidh',
     period: 'Bengaluru · Chennai',
     body: [
       'I build retrieval systems, agents, and knowledge graphs. Most of my work lives where language models meet structured knowledge: GraphRAG frameworks, multi-agent pipelines, and models that run on local hardware.',
       'B.Tech from IIT Madras, class of 2026. Currently doing AI engineering at Eagle Eye Networks.',
-      'This site is a knowledge graph because that is what I make. Every node is real work; drag, click, and explore.',
+      'This site is a small solar system because my work orbits a few fixed ideas. Every moon is real work; drag, click, and explore.',
     ],
     tech: [],
     links: [
@@ -38,7 +43,8 @@ export const NODES = [
 
   // ---- Experience ----
   {
-    id: 'een', type: 'experience', size: 0.52, pos: [5.6, 3.9, -0.4],
+    id: 'een', type: 'experience', size: 0.52,
+    orbit: { radius: 1.5, angle0: 0, speed: 0.28 },
     label: 'Eagle Eye Networks', sub: 'AI Engineering Intern',
     title: 'Eagle Eye Networks',
     period: 'Jun 2026 · present — Bengaluru',
@@ -51,7 +57,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'blueocean', type: 'experience', size: 0.46, pos: [7.6, 2.4, -2.2],
+    id: 'blueocean', type: 'experience', size: 0.46,
+    orbit: { radius: 2.5, angle0: 200, speed: 0.18 },
     label: 'Blue Ocean', sub: 'AI Architect',
     title: 'Blue Ocean',
     period: 'Apr 2026 · present — Remote',
@@ -64,7 +71,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'hypergro', type: 'experience', size: 0.42, pos: [5.2, 5.3, -2.6],
+    id: 'hypergro', type: 'experience', size: 0.42,
+    orbit: { radius: 2.9, angle0: 300, speed: 0.15 },
     label: 'Hypergro', sub: 'GenAI Intern',
     title: 'Hypergro',
     period: 'Jan 2026 · Mar 2026 — Remote',
@@ -77,7 +85,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'danone', type: 'experience', size: 0.46, pos: [7.2, 4.8, 0.9],
+    id: 'danone', type: 'experience', size: 0.46,
+    orbit: { radius: 2.0, angle0: 100, speed: 0.22 },
     label: 'Danone', sub: 'AI Operations Intern',
     title: 'Danone',
     period: 'May 2025 · Nov 2025 — Hybrid',
@@ -92,7 +101,8 @@ export const NODES = [
 
   // ---- Projects ----
   {
-    id: 'chemgpt', type: 'project', size: 0.5, pos: [-6.2, 2.8, 1.6],
+    id: 'chemgpt', type: 'project', size: 0.5,
+    orbit: { radius: 1.5, angle0: 0, speed: 0.26 },
     label: 'ChemGPT', sub: 'Agentic GraphRAG',
     title: 'ChemGPT',
     period: 'Jul 2025 · Nov 2025',
@@ -104,7 +114,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'kai', type: 'project', size: 0.48, pos: [-7.8, 0.2, -1.0],
+    id: 'kai', type: 'project', size: 0.48,
+    orbit: { radius: 1.9, angle0: 52, speed: 0.22 },
     label: 'Project Kai', sub: 'Local agent orchestrator',
     title: 'Project Kai',
     period: 'Ongoing',
@@ -116,7 +127,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'speechgraph', type: 'project', size: 0.46, pos: [-5.4, 0.8, 2.8],
+    id: 'speechgraph', type: 'project', size: 0.46,
+    orbit: { radius: 2.3, angle0: 104, speed: 0.19 },
     label: 'Speech-to-Graph', sub: 'Edge AI · Android',
     title: 'Edge AI Speech-to-Graph Engine',
     period: 'Ongoing',
@@ -128,7 +140,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'contentengine', type: 'project', size: 0.42, pos: [-8.2, 2.2, 1.0],
+    id: 'contentengine', type: 'project', size: 0.42,
+    orbit: { radius: 2.7, angle0: 156, speed: 0.17 },
     label: 'Content Engine', sub: 'Multi-agent video pipeline',
     title: 'Automated GenAI Content Engine',
     period: 'Jul 2025 · Nov 2025',
@@ -140,7 +153,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'tandem', type: 'project', size: 0.4, pos: [-6.0, -1.4, -1.8],
+    id: 'tandem', type: 'project', size: 0.4,
+    orbit: { radius: 3.0, angle0: 208, speed: 0.15 },
     label: 'tandem', sub: 'Two strangers, one canvas',
     title: 'tandem',
     period: '2026',
@@ -152,7 +166,8 @@ export const NODES = [
     links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/tandem' }],
   },
   {
-    id: 'fintrack', type: 'project', size: 0.4, pos: [-4.6, 2.2, -0.9],
+    id: 'fintrack', type: 'project', size: 0.4,
+    orbit: { radius: 3.3, angle0: 260, speed: 0.13 },
     label: 'FinTrack', sub: 'Local-first finance',
     title: 'FinTrack',
     period: '2026',
@@ -163,7 +178,8 @@ export const NODES = [
     links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/fintrack' }],
   },
   {
-    id: 'hopalong', type: 'project', size: 0.36, pos: [-7.4, -0.9, 2.2],
+    id: 'hopalong', type: 'project', size: 0.36,
+    orbit: { radius: 3.6, angle0: 312, speed: 0.11 },
     label: 'Cosmic Voyager', sub: 'Procedural attractor art',
     title: 'Hopalong Cosmic Voyager',
     period: '2025',
@@ -177,7 +193,8 @@ export const NODES = [
 
   // ---- Education ----
   {
-    id: 'iitm', type: 'education', size: 0.5, pos: [4.4, -4.4, 2.0],
+    id: 'iitm', type: 'education', size: 0.5,
+    orbit: { radius: 1.4, angle0: 0, speed: 0.24 },
     label: 'IIT Madras', sub: 'B.Tech · CGPA 9.01',
     title: 'Indian Institute of Technology, Madras',
     period: 'Nov 2022 · May 2026 — Chennai',
@@ -189,10 +206,37 @@ export const NODES = [
     tech: ['PySR', 'Symbolic regression'],
     links: [],
   },
+  {
+    id: 'dpssouth', type: 'education', size: 0.4,
+    orbit: { radius: 2.0, angle0: 130, speed: 0.19 },
+    label: 'DPS South', sub: 'CBSE · 98.2% in Class 12 boards',
+    title: 'Delhi Public School South',
+    period: 'Classes 11 and 12 · CBSE',
+    body: [
+      'Senior secondary, Classes 11 and 12.',
+      'Scored 98.2% in the Class 12 board examinations.',
+    ],
+    tech: [],
+    links: [],
+  },
+  {
+    id: 'nhvps', type: 'education', size: 0.38,
+    orbit: { radius: 2.5, angle0: 250, speed: 0.16 },
+    label: 'National Hill View', sub: 'CBSE · 96.4% in Class 10 boards',
+    title: 'National Hill View Public School',
+    period: 'Through Class 10 · CBSE',
+    body: [
+      'Schooling through Class 10.',
+      'Scored 96.4% in the Class 10 board examinations.',
+    ],
+    tech: [],
+    links: [],
+  },
 
   // ---- Skills ----
   {
-    id: 'skills-ai', type: 'skills', size: 0.34, pos: [-1.4, -4.6, -2.0],
+    id: 'skills-ai', type: 'skills', size: 0.34,
+    orbit: { radius: 1.4, angle0: 40, speed: 0.22 },
     label: 'AI / ML', sub: 'Libraries and frameworks',
     title: 'AI / ML',
     period: '',
@@ -201,7 +245,8 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'skills-sys', type: 'skills', size: 0.34, pos: [-3.2, -5.4, -3.0],
+    id: 'skills-sys', type: 'skills', size: 0.34,
+    orbit: { radius: 1.9, angle0: 220, speed: 0.18 },
     label: 'Systems', sub: 'Languages and infra',
     title: 'Systems',
     period: '',
@@ -211,9 +256,9 @@ export const NODES = [
   },
 ];
 
-// Edges: center to every node, plus cross-links that encode real relationships.
+// Cross-links that encode real relationships between items. Hidden by
+// default in the scene; revealed when a planet or moon is focused.
 export const EDGES = [
-  ...NODES.filter(n => n.id !== 'me').map(n => ['me', n.id]),
   ['danone', 'chemgpt'],        // GraphRAG lineage
   ['een', 'chemgpt'],           // retrieval accuracy work
   ['kai', 'speechgraph'],       // local-first AI
