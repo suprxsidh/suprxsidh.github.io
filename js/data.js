@@ -20,8 +20,8 @@ export const REGIONS = [
 export const NODES = [
   {
     id: 'me', type: 'me', size: 1.15, pos: [0, 0, 0],
-    label: 'Suprasidh Das', sub: 'AI Engineer',
-    title: 'Suprasidh Das',
+    label: 'Suprasidh', sub: 'AI Engineer',
+    title: 'Suprasidh',
     period: 'Bengaluru · Chennai',
     body: [
       'I build retrieval systems, agents, and knowledge graphs. Most of my work lives where language models meet structured knowledge: GraphRAG frameworks, multi-agent pipelines, and models that run on local hardware.',

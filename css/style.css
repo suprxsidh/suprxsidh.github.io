@@ -7,7 +7,7 @@
   --mist: #8f8798;
   --line: rgba(201, 168, 106, 0.16);
   --violet: #6a5a8a;
-  --serif: "Fraunces", Georgia, serif;
+  --display: "Space Grotesk", system-ui, sans-serif;
   --sans: "Instrument Sans", system-ui, sans-serif;
   --mono: "Spline Sans Mono", ui-monospace, monospace;
 }
@@ -16,6 +16,8 @@
 
 html {
   background: var(--bg);
+  background-image: radial-gradient(ellipse 120% 90% at 50% 35%, #0e0c15 0%, var(--bg) 65%);
+  background-attachment: fixed;
   color: var(--ivory);
   font-family: var(--sans);
 }
@@ -43,11 +45,10 @@ a { color: inherit; }
 .identity { display: flex; flex-direction: column; gap: 6px; }
 
 .name {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-size: 1.5rem;
-  font-weight: 450;
-  font-style: italic;
-  letter-spacing: 0.01em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   color: var(--ivory);
   text-decoration: none;
 }
@@ -135,10 +136,10 @@ a { color: inherit; }
 .node-label.hot { color: var(--champagne-bright); }
 
 .node-label.me-label {
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--display);
+  font-weight: 500;
   font-size: 1.05rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: none;
   color: var(--ivory);
   transform: translateY(34px);
@@ -210,7 +211,7 @@ a { color: inherit; }
 }
 
 .panel-title {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 420;
   font-size: 2.05rem;
   line-height: 1.08;
@@ -282,14 +283,14 @@ a { color: inherit; }
 }
 
 .list-intro {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 380;
   font-size: clamp(1.5rem, 3.4vw, 2.2rem);
   line-height: 1.3;
   color: var(--ivory);
   margin-bottom: 84px;
 }
-.list-intro em { color: var(--champagne-bright); font-style: italic; }
+.list-intro em { color: var(--champagne-bright); font-style: normal; }
 
 .list-section { border-top: 1px solid var(--line); padding-top: 26px; margin-bottom: 72px; }
 
@@ -313,7 +314,7 @@ a { color: inherit; }
 }
 
 .list-item-title {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 450;
   font-size: 1.35rem;
 }
@@ -347,7 +348,7 @@ a { color: inherit; }
   color: var(--mist);
   padding: 24px;
 }
-.noscript h1 { font-family: var(--serif); font-style: italic; font-weight: 450; color: var(--ivory); }
+.noscript h1 { font-family: var(--display); font-weight: 500; color: var(--ivory); }
 .noscript a { color: var(--champagne); }
 
 /* ---------- responsive ---------- */

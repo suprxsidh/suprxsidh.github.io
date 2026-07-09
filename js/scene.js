@@ -62,6 +62,72 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     scene.add(new THREE.Points(geo, mat));
   }
 
+  // distant starfield: two shells so the graph sits inside a galaxy, not a void.
+  // fog would swallow anything this far out, so star materials opt out of it.
+  {
+    let seed = 42;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const STAR_COLORS = [0xece4d6, 0xece4d6, 0xece4d6, 0xffffff, 0xc9a86a, 0x9a8ac0];
+    const makeShell = (count, rMin, rMax, size, opacity) => {
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const c = new THREE.Color();
+      for (let i = 0; i < count; i++) {
+        const v = new THREE.Vector3(rand() - 0.5, rand() - 0.5, rand() - 0.5);
+        if (v.lengthSq() < 1e-6) v.set(0.3, 0.3, 0.3);
+        v.normalize().multiplyScalar(rMin + rand() * (rMax - rMin));
+        positions.set([v.x, v.y, v.z], i * 3);
+        c.setHex(STAR_COLORS[Math.floor(rand() * STAR_COLORS.length)]);
+        const dim = 0.55 + rand() * 0.45;
+        colors.set([c.r * dim, c.g * dim, c.b * dim], i * 3);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      const mat = new THREE.PointsMaterial({
+        size, vertexColors: true, transparent: true, opacity,
+        blending: THREE.AdditiveBlending, depthWrite: false, fog: false,
+      });
+      scene.add(new THREE.Points(geo, mat));
+    };
+    makeShell(1400, 60, 110, 0.28, 0.75); // faint far field
+    makeShell(600, 45, 75, 0.45, 0.9);    // nearer, brighter stars
+  }
+
+  // nebula haze: large soft sprites behind the clusters
+  {
+    const nebulaTexture = (r, g, b) => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+      grad.addColorStop(0, `rgba(${r},${g},${b},0.32)`);
+      grad.addColorStop(0.5, `rgba(${r},${g},${b},0.10)`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 256, 256);
+      return new THREE.CanvasTexture(c);
+    };
+    const violet = nebulaTexture(106, 90, 138);
+    const champagne = nebulaTexture(201, 168, 106);
+    const CLOUDS = [
+      [violet, [-18, 6, -26], 46, 0.30],
+      [violet, [16, -8, -30], 54, 0.26],
+      [champagne, [8, 10, -24], 38, 0.20],
+      [champagne, [-10, -12, -20], 32, 0.16],
+      [violet, [0, 16, -34], 60, 0.20],
+    ];
+    for (const [map, pos, scale, opacity] of CLOUDS) {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map, transparent: true, opacity, depthWrite: false,
+        blending: THREE.AdditiveBlending, fog: false,
+      }));
+      sprite.position.set(...pos);
+      sprite.scale.setScalar(scale);
+      scene.add(sprite);
+    }
+  }
+
   // halo sprite texture
   const haloTexture = (() => {
     const c = document.createElement('canvas');
@@ -88,16 +154,16 @@ export function createScene({ mount, labelMount, onNodeClick }) {
       mesh = new THREE.Mesh(
         new THREE.IcosahedronGeometry(node.size, 0),
         new THREE.MeshStandardMaterial({
-          color: 0xdec894, flatShading: true, metalness: 0.85, roughness: 0.22,
-          emissive: 0x6a521e, emissiveIntensity: 0.55,
+          color: 0xdec894, flatShading: true, metalness: 0.4, roughness: 0.3,
+          emissive: 0x8a6a2a, emissiveIntensity: 0.85,
         })
       );
     } else {
       mesh = new THREE.Mesh(
         new THREE.SphereGeometry(node.size, 28, 20),
         new THREE.MeshStandardMaterial({
-          color, metalness: 0.55, roughness: 0.35,
-          emissive: color, emissiveIntensity: 0.08,
+          color, metalness: 0.1, roughness: 0.5,
+          emissive: color, emissiveIntensity: 0.6,
         })
       );
     }
@@ -107,9 +173,9 @@ export function createScene({ mount, labelMount, onNodeClick }) {
 
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({
       map: haloTexture, transparent: true, depthWrite: false,
-      opacity: node.id === 'me' ? 0.9 : 0.55, blending: THREE.AdditiveBlending,
+      opacity: node.id === 'me' ? 1.0 : 0.7, blending: THREE.AdditiveBlending,
     }));
-    halo.scale.setScalar(node.size * 5.2);
+    halo.scale.setScalar(node.size * (node.id === 'me' ? 7.5 : 6.2));
     mesh.add(halo);
 
     const labelEl = document.createElement('div');
@@ -127,7 +193,7 @@ export function createScene({ mount, labelMount, onNodeClick }) {
   // gently bowed edges
   {
     const mat = new THREE.LineBasicMaterial({
-      color: 0xc9a86a, transparent: true, opacity: 0.2,
+      color: 0xc9a86a, transparent: true, opacity: 0.13,
     });
     const byId = Object.fromEntries(NODES.map(n => [n.id, new THREE.Vector3(...n.pos)]));
     for (const [a, b] of EDGES) {
