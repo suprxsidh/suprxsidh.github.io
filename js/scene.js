@@ -101,8 +101,10 @@ export function createScene({ mount, labelMount, onNodeClick }) {
       c.width = c.height = 256;
       const ctx = c.getContext('2d');
       const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-      grad.addColorStop(0, `rgba(${r},${g},${b},0.32)`);
-      grad.addColorStop(0.5, `rgba(${r},${g},${b},0.10)`);
+      grad.addColorStop(0, `rgba(${r},${g},${b},0.30)`);
+      grad.addColorStop(0.28, `rgba(${r},${g},${b},0.09)`);
+      grad.addColorStop(0.55, `rgba(${r},${g},${b},0.025)`);
+      grad.addColorStop(0.78, `rgba(${r},${g},${b},0.007)`);
       grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 256, 256);
@@ -111,11 +113,11 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     const violet = nebulaTexture(106, 90, 138);
     const champagne = nebulaTexture(201, 168, 106);
     const CLOUDS = [
-      [violet, [-18, 6, -26], 46, 0.30],
-      [violet, [16, -8, -30], 54, 0.26],
-      [champagne, [8, 10, -24], 38, 0.20],
-      [champagne, [-10, -12, -20], 32, 0.16],
-      [violet, [0, 16, -34], 60, 0.20],
+      [violet, [-18, 6, -26], 46, 0.15],
+      [violet, [16, -8, -30], 54, 0.13],
+      [champagne, [8, 10, -24], 38, 0.10],
+      [champagne, [-10, -12, -20], 32, 0.08],
+      [violet, [0, 16, -34], 60, 0.10],
     ];
     for (const [map, pos, scale, opacity] of CLOUDS) {
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -135,7 +137,9 @@ export function createScene({ mount, labelMount, onNodeClick }) {
     const ctx = c.getContext('2d');
     const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
     g.addColorStop(0, 'rgba(233,217,184,0.55)');
-    g.addColorStop(0.35, 'rgba(201,168,106,0.18)');
+    g.addColorStop(0.22, 'rgba(201,168,106,0.16)');
+    g.addColorStop(0.45, 'rgba(201,168,106,0.045)');
+    g.addColorStop(0.7, 'rgba(201,168,106,0.012)');
     g.addColorStop(1, 'rgba(201,168,106,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 128, 128);
@@ -173,9 +177,9 @@ export function createScene({ mount, labelMount, onNodeClick }) {
 
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({
       map: haloTexture, transparent: true, depthWrite: false,
-      opacity: node.id === 'me' ? 1.0 : 0.7, blending: THREE.AdditiveBlending,
+      opacity: node.id === 'me' ? 0.9 : 0.6, blending: THREE.AdditiveBlending,
     }));
-    halo.scale.setScalar(node.size * (node.id === 'me' ? 7.5 : 6.2));
+    halo.scale.setScalar(node.size * (node.id === 'me' ? 5.6 : 5.2));
     mesh.add(halo);
 
     const labelEl = document.createElement('div');
