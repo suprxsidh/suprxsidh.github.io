@@ -10,8 +10,9 @@ Portfolio rethemed from flat constellation to an interactive solar system: sun =
 5. ✅ Verified end-to-end in browser (sun/planet/moon click, bg-click reset, list mode, schools, no console errors)
 6. ✅ Tuning pass 1 on feedback: inner-planet colors per category (Mars/Earth/Mercury/Venus), per-moon shade variation within each family, incl widened to 8-18° mixed-sign spread (commit b8119e5, local-only)
 7. ✅ Tuning pass 2 on feedback: education+skills moved to inner orbits, experience+projects outer; sun icosahedron detail 1→0 (less spherical, more angular); per-body color-tinted halos + more specular pop so colors read against the nebula bg (commit b3afb9b, local-only)
-8. ⏳ USER REVIEW of solar system → then `git push origin main` to deploy (commits ec3a79f, f39055c, b8119e5, b3afb9b local-only, NOT pushed)
-9. ⬜ Possible tuning after review: orbit speeds, moon label sizes, nebula strength
+8. ✅ Tuning pass 3 on feedback: deterministic canvas-painted surface textures per planet type (Mars/Earth/Mercury/Venus) + shared grayscale mottle texture for moons, tinted by each moon's own color (commit 69cf380, local-only)
+9. ⏳ USER REVIEW of solar system → then `git push origin main` to deploy (commits ec3a79f, f39055c, b8119e5, b3afb9b, 69cf380 local-only, NOT pushed)
+10. ⬜ Possible tuning after review: orbit speeds, moon label sizes, nebula strength
 
 ## Hard constraints (do not re-learn)
 - Sprite gradient textures (halos, nebula) MUST use steep multi-stop falloff reaching ~0 well inside the radius. Shallow linear tails render as banded gray discs at large sprite scales. Already fixed once; don't regress.
@@ -25,5 +26,5 @@ Portfolio rethemed from flat constellation to an interactive solar system: sun =
 
 ## State
 - Deployed: galaxy retheme (b0b8bd1 + docs).
-- Local only, unpushed: solar system + 2 tuning passes (ec3a79f, f39055c, b8119e5, b3afb9b). Awaiting user "deploy".
+- Local only, unpushed: solar system + 3 tuning passes (ec3a79f, f39055c, b8119e5, b3afb9b, 69cf380). Awaiting user "deploy".
 - Background: python http.server instances may still be running on ports 8753/8761/8762/8763 — kill on wrapup.
