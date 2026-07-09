@@ -251,11 +251,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       const moonPivot = new THREE.Group();
       anchor.add(moonPivot);
 
+      const moonColor = item.color ?? color;
       const moon = new THREE.Mesh(
         new THREE.SphereGeometry(moonSize, 24, 18),
         new THREE.MeshStandardMaterial({
-          color, metalness: 0.1, roughness: 0.5,
-          emissive: color, emissiveIntensity: 0.5,
+          color: moonColor, metalness: 0.1, roughness: 0.5,
+          emissive: moonColor, emissiveIntensity: 0.5,
         })
       );
       moon.position.set(moonR, 0, 0);

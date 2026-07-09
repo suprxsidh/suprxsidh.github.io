@@ -37,3 +37,19 @@ List mode markup/logic (new school items flow in from data.js), mobile/reduced-m
 
 ## Verification
 Serve locally: default view (sun + 4 planets + rings), focus each planet, open a moon panel, background click resumes motion, list mode shows schools, no console errors.
+
+## Addendum 2026-07-09: inner-planet colors + tilt increase
+Approved by Suprasidh after first local review of the restructure.
+
+**Colors** — each category planet retinted to an inner-planet family, moons vary within that family instead of inheriting one flat color:
+- Experience → Mars (rust/terracotta base `#b5451f`)
+- Projects → Earth (blue-green base `#3f7ea6`; 7 moons, widest spread)
+- Education → Mercury (grey-brown base `#8c8072`)
+- Skills → Venus (pale cream-gold base `#d6c07a`)
+
+Per-moon hex lives on each moon node in `data.js` (`color` field); `scene.js` falls back to the planet's `TYPES[type].color` if a moon has none. Hand-picked, no runtime randomness.
+
+**Tilts** — `incl` values increased from the original 2-4° spread (too subtle to read) to a moderate, clearly-distinct spread with mixed signs so the four orbital planes visibly cross:
+- Experience: 12°, Projects: -18°, Education: 8°, Skills: -15°
+
+`systemGroup.rotation.x` stays at +0.28; per-planet `incline.rotation.z` is unaffected by that base tilt.
