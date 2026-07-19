@@ -123,14 +123,14 @@ export const NODES = [
   {
     id: 'kai', type: 'project', size: 0.48, color: 0x3f9e8f,
     orbit: { radius: 1.9, angle0: 52, speed: 0.22 },
-    label: 'Project Kai', sub: 'Local agent orchestrator',
+    label: 'Kai', sub: 'Always-on macOS companion',
     title: 'Project Kai',
     period: 'Ongoing',
     body: [
-      'A voice-commanded agentic orchestrator that runs across my own devices over a Tailscale mesh, translating speech into workflows across apps.',
-      'Includes a memory-orchestration layer for MLX that juggles model loading and execution under tight RAM budgets.',
+      'An always-on macOS companion that remembers, plans, and pushes back, not a chatbot wrapper. Runs as a native background process with its own panel UI and a persistent memory layer that survives across sessions.',
+      'Delegates reasoning to whichever provider is cheapest and available rather than running models locally. An earlier local-MLX version hit a RAM wall on real hardware; the redesign traded local inference for API delegation and got its reliability back.',
     ],
-    tech: ['MLX', 'Tailscale', 'Agents', 'Whisper'],
+    tech: ['macOS', 'PyObjC', 'Agent orchestration', 'Multi-provider LLM'],
     links: [],
   },
   {
@@ -196,6 +196,60 @@ export const NODES = [
     ],
     tech: ['JavaScript', 'Canvas 2D', 'Generative math'],
     links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/hopalong-cosmic-voyager' }],
+  },
+  {
+    id: 'vyoma', type: 'project', size: 0.46, color: 0xd9a441,
+    orbit: { radius: 3.9, angle0: 30, speed: 0.10 },
+    label: 'Vyoma', sub: 'Semantic-bridge RAG · Indian Knowledge Systems',
+    title: 'Vyoma — BHAI-Se-Poocho',
+    period: '2026',
+    body: [
+      'An AI system that maps real professional situations onto wisdom from Indian Knowledge System scriptures, starting with the Arthashastra. Describe a problem and it finds the passage that actually applies, not just the one with matching keywords.',
+      'The hard part isn’t retrieval, it’s the semantic bridge: mapping "my boss is micromanaging me" to raja-amatya power dynamics before anything gets retrieved.',
+      'Extending to Sanskrit-first retrieval next: indexing original Sanskrit source text directly, so the authoritative layer is the scripture itself, not an English paraphrase.',
+    ],
+    tech: ['FastAPI', 'ChromaDB', 'RAG', 'React', 'Sanskrit NLP'],
+    links: [],
+  },
+  {
+    id: 'gravbox', type: 'project', size: 0.42, color: 0x5a4fcf,
+    orbit: { radius: 4.2, angle0: 85, speed: 0.095 },
+    label: 'gravbox', sub: 'Universe Sandbox, lite',
+    title: 'gravbox',
+    period: '2026',
+    body: [
+      'A browser-based N-body gravity sandbox: resize a planet, collapse the sun into a black hole, drop in a rogue star, and watch the rest of the system respond live.',
+      'Deep-time bakes run the system forward up to 5 million years (a 1 Myr bake takes about 3.5 minutes, energy drift held around 1e-8), then scrub through the baked timeline frame by frame.',
+      'Velocity-Verlet integration with adaptive timestep and sub-step collision detection, so a fast pass can’t tunnel through a body undetected.',
+    ],
+    tech: ['Three.js', 'N-body integration', 'WebGL'],
+    links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/gravbox' }],
+  },
+  {
+    id: 'fretcoach', type: 'project', size: 0.4, color: 0xb5834a,
+    orbit: { radius: 4.5, angle0: 140, speed: 0.09 },
+    label: 'Fretcoach', sub: 'Guitar tabs you can practice against',
+    title: 'Fretcoach',
+    period: '2026',
+    body: [
+      'A guitar tab learner with real-time, mic-based pitch detection: play along and get per-note scoring against the tab instead of a static chord diagram.',
+      'Ships with hand-transcribed tabs for six songs and autoscrolling playback synced to where you actually are in the song.',
+    ],
+    tech: ['React', 'TypeScript', 'Vite', 'Web Audio API'],
+    links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/guitar-app' }],
+  },
+  {
+    id: 'velanthor', type: 'project', size: 0.44, color: 0x8b2635,
+    orbit: { radius: 4.8, angle0: 235, speed: 0.085 },
+    label: 'Velanthor', sub: 'Terminal RPG · Crown of the Dead God',
+    title: 'Velanthor: The Crown of the Dead God',
+    period: '2025 · 2026',
+    body: [
+      'A dark-fantasy, choice-based terminal RPG in pure Python stdlib: 5 playable characters, 714 scenes, 2,136 choices, 81 endings.',
+      'Turn-based combat telegraphs enemy specials one turn ahead so a well-timed stun can cancel a windup, and damage resolves into contextual prose instead of bare numbers.',
+    ],
+    tech: ['Python', 'Narrative graph design', 'Terminal UI'],
+    links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/velanthor-rpg' }],
   },
 
   // ---- Education ----
@@ -271,6 +325,7 @@ export const EDGES = [
   ['kai', 'speechgraph'],       // local-first AI
   ['hypergro', 'contentengine'],// generative video
   ['skills-ai', 'kai'],
+  ['skills-ai', 'vyoma'],       // RAG lineage
   ['skills-sys', 'fintrack'],
   ['iitm', 'chemgpt'],          // chemE + AI
 ];
