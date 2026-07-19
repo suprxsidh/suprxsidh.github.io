@@ -105,6 +105,20 @@ export const NODES = [
     tech: ['Neo4j', 'GraphRAG', 'LoRA', 'Python'],
     links: [],
   },
+  {
+    id: 'vyomalabs', type: 'experience', size: 0.44, color: 0xcf8b3d,
+    orbit: { radius: 3.3, angle0: 150, speed: 0.13 },
+    label: 'Vyoma Linguistic Labs', sub: 'AI/RAG Engineering Intern',
+    title: 'Vyoma Linguistic Labs',
+    period: 'May 2026 · present',
+    body: [
+      'Building BHAI-Se-Poocho: an AI system that maps real professional situations onto wisdom from Indian Knowledge System scriptures, starting with the Arthashastra.',
+      'The retrieval problem here is a semantic bridge, not a keyword match — mapping a modern situation to the ancient framework passage that actually applies before anything gets retrieved.',
+      'Working on extending the system toward Sanskrit-first retrieval: indexing original Sanskrit source text directly rather than English paraphrase.',
+    ],
+    tech: ['FastAPI', 'ChromaDB', 'RAG', 'Sanskrit NLP'],
+    links: [],
+  },
 
   // ---- Projects ----
   {
@@ -160,17 +174,18 @@ export const NODES = [
     links: [],
   },
   {
-    id: 'tandem', type: 'project', size: 0.4, color: 0x8fd9c4,
+    id: 'boardom', type: 'project', size: 0.4, color: 0x8fd9c4,
     orbit: { radius: 3.0, angle0: 208, speed: 0.15 },
-    label: 'tandem', sub: 'Two strangers, one canvas',
-    title: 'tandem',
-    period: '2026',
+    label: 'boardom', sub: 'Two strangers, one canvas',
+    title: 'boardom',
+    period: 'Ongoing',
     body: [
-      'Anonymous real-time collaborative drawing. Two cursors, one canvas, no names.',
+      'Anonymous real-time collaborative drawing. Two strangers get matched, share one canvas, no names, no accounts — fully ephemeral by default.',
+      'Rebuilt from an earlier prototype (a traditional Express/Socket.io/Prisma server stack) around WebRTC peer connections with Supabase handling matchmaking and signaling instead.',
       'Built to see how little interface two people need to make something together.',
     ],
-    tech: ['TypeScript', 'WebSockets', 'Canvas'],
-    links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/tandem' }],
+    tech: ['Next.js', 'WebRTC', 'Supabase', 'Canvas'],
+    links: [{ label: 'GitHub', url: 'https://github.com/suprxsidh/boardom' }],
   },
   {
     id: 'fintrack', type: 'project', size: 0.4, color: 0x3a5a8c,
@@ -326,6 +341,7 @@ export const EDGES = [
   ['hypergro', 'contentengine'],// generative video
   ['skills-ai', 'kai'],
   ['skills-ai', 'vyoma'],       // RAG lineage
+  ['vyomalabs', 'vyoma'],       // internship -> the product built there
   ['skills-sys', 'fintrack'],
   ['iitm', 'chemgpt'],          // chemE + AI
 ];
