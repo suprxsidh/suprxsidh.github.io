@@ -11,10 +11,10 @@ Portfolio rethemed from flat constellation to an interactive solar system: sun =
 6. ✅ Tuning pass 1 on feedback: inner-planet colors per category (Mars/Earth/Mercury/Venus), per-moon shade variation within each family, incl widened to 8-18° mixed-sign spread (commit b8119e5, local-only)
 7. ✅ Tuning pass 2 on feedback: education+skills moved to inner orbits, experience+projects outer; sun icosahedron detail 1→0 (less spherical, more angular); per-body color-tinted halos + more specular pop so colors read against the nebula bg (commit b3afb9b, local-only)
 8. ✅ Tuning pass 3 on feedback: deterministic canvas-painted surface textures per planet type (Mars/Earth/Mercury/Venus) + shared grayscale mottle texture for moons, tinted by each moon's own color (commit 69cf380, local-only)
-9. 🔴 BLOCKED — USER REVIEW: user says "nope i dont see this rendered" re: tuning pass 3 (textures). See "Current bug" section below. NOT pushed.
-10. ⬜ Possible tuning after review: orbit speeds, moon label sizes, nebula strength
+9. ✅ FIXED: root cause confirmed as the "too subtle at default zoom" hypothesis. Increased blotch/crater/band opacity (~35-50% higher alpha across all four planet texture types + moon mottle) and roughly doubled bumpScale (planets 0.035→0.09, moons 0.025→0.06). Verified via agent-browser screenshot at DEFAULT camera distance (not zoomed) — Education (Mercury-type) craters and Skills (Venus-type) banding are now both clearly visible without zooming in. Pushed.
+10. ⬜ Possible tuning after live user review: orbit speeds, moon label sizes, nebula strength
 
-## Current bug: user does not see the textures rendered
+## Resolved bug: user did not see the textures rendered
 Symptom: after tuning pass 3 (commit 69cf380: PLANET_TEXTURES per type +
 shared moonTexture, wired as `map`/`bumpMap` on planet/moon materials in
 scene.js), agent was told "nope i dont see this rendered". Agent had only

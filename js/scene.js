@@ -164,12 +164,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       ctx.fillStyle = '#b5451f'; ctx.fillRect(0, 0, 256, 256);
       for (let i = 0; i < 46; i++) {
         const x = rand() * 256, y = rand() * 256, r = 10 + rand() * 30;
-        ctx.fillStyle = rand() > 0.45 ? 'rgba(74,32,16,0.4)' : 'rgba(214,140,86,0.32)';
+        ctx.fillStyle = rand() > 0.45 ? 'rgba(74,32,16,0.58)' : 'rgba(214,140,86,0.48)';
         ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.5 + rand() * 0.3), rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
       }
       for (let i = 0; i < 700; i++) {
         const x = rand() * 256, y = rand() * 256, v = rand();
-        ctx.fillStyle = v > 0.5 ? 'rgba(50,20,8,0.14)' : 'rgba(240,180,120,0.12)';
+        ctx.fillStyle = v > 0.5 ? 'rgba(50,20,8,0.22)' : 'rgba(240,180,120,0.2)';
         ctx.fillRect(x, y, 1.4, 1.4);
       }
       return new THREE.CanvasTexture(c);
@@ -181,12 +181,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       ctx.fillStyle = '#3f7ea6'; ctx.fillRect(0, 0, 256, 256);
       for (let i = 0; i < 20; i++) {
         const x = rand() * 256, y = rand() * 256, r = 14 + rand() * 26;
-        ctx.fillStyle = rand() > 0.5 ? 'rgba(70,120,70,0.55)' : 'rgba(90,90,60,0.45)';
+        ctx.fillStyle = rand() > 0.5 ? 'rgba(70,120,70,0.7)' : 'rgba(90,90,60,0.6)';
         ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.55 + rand() * 0.3), rand() * Math.PI, 0, Math.PI * 2); ctx.fill();
       }
       for (let i = 0; i < 10; i++) {
         const y = rand() * 256, h = 6 + rand() * 10;
-        ctx.fillStyle = 'rgba(240,244,240,0.22)';
+        ctx.fillStyle = 'rgba(240,244,240,0.32)';
         ctx.beginPath(); ctx.ellipse(rand() * 256, y, 40 + rand() * 50, h, 0, 0, Math.PI * 2); ctx.fill();
       }
       return new THREE.CanvasTexture(c);
@@ -198,9 +198,9 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       ctx.fillStyle = '#8c8072'; ctx.fillRect(0, 0, 256, 256);
       for (let i = 0; i < 60; i++) {
         const x = rand() * 256, y = rand() * 256, r = 4 + rand() * 16;
-        ctx.fillStyle = 'rgba(56,48,40,0.35)';
+        ctx.fillStyle = 'rgba(56,48,40,0.5)';
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = 'rgba(200,190,175,0.3)';
+        ctx.fillStyle = 'rgba(200,190,175,0.42)';
         ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.6, 0, Math.PI * 2); ctx.fill();
       }
       return new THREE.CanvasTexture(c);
@@ -212,7 +212,7 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       ctx.fillStyle = '#d6c07a'; ctx.fillRect(0, 0, 256, 256);
       for (let i = 0; i < 14; i++) {
         const y = (i / 14) * 256 + rand() * 8;
-        ctx.strokeStyle = rand() > 0.5 ? 'rgba(250,240,210,0.28)' : 'rgba(160,130,70,0.22)';
+        ctx.strokeStyle = rand() > 0.5 ? 'rgba(250,240,210,0.4)' : 'rgba(160,130,70,0.34)';
         ctx.lineWidth = 4 + rand() * 8;
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -234,12 +234,12 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     for (let i = 0; i < 46; i++) {
       const x = rand() * 128, y = rand() * 128, r = 3 + rand() * 11;
       const v = Math.round(140 + rand() * 90);
-      ctx.fillStyle = `rgba(${v},${v},${v},0.4)`;
+      ctx.fillStyle = `rgba(${v},${v},${v},0.55)`;
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
     }
     for (let i = 0; i < 320; i++) {
       const x = rand() * 128, y = rand() * 128, v = Math.round(110 + rand() * 130);
-      ctx.fillStyle = `rgba(${v},${v},${v},0.18)`;
+      ctx.fillStyle = `rgba(${v},${v},${v},0.26)`;
       ctx.fillRect(x, y, 1, 1);
     }
     return new THREE.CanvasTexture(c);
@@ -327,7 +327,7 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
     const mesh = new THREE.Mesh(
       new THREE.SphereGeometry(planet.size, 32, 24),
       new THREE.MeshStandardMaterial({
-        color: 0xffffff, map: planetTex, bumpMap: planetTex, bumpScale: 0.035,
+        color: 0xffffff, map: planetTex, bumpMap: planetTex, bumpScale: 0.09,
         metalness: 0.22, roughness: 0.38,
         emissive: color, emissiveIntensity: 0.5,
       })
@@ -358,7 +358,7 @@ export function createScene({ mount, labelMount, onNodeClick, onPanelDismiss }) 
       const moon = new THREE.Mesh(
         new THREE.SphereGeometry(moonSize, 24, 18),
         new THREE.MeshStandardMaterial({
-          color: moonColor, map: moonTexture, bumpMap: moonTexture, bumpScale: 0.025,
+          color: moonColor, map: moonTexture, bumpMap: moonTexture, bumpScale: 0.06,
           metalness: 0.2, roughness: 0.35,
           emissive: moonColor, emissiveIntensity: 0.62,
         })
